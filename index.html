@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ER Nursing Audit (ADPIE) v3 - Sync Ready</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+:root {
+  --bd-dark: #0d47a1;
+  --bd-mid: #1565c0;
+  --bd-light: #e3f2fd;
+  --bd-pale: #f3f7ff;
+  --yw-dark: #f57f17;
+  --yw-mid: #fbc02d;
+  --yw-light: #fffde7;
+  --yw-border: #f9a825;
+  --pass-bg: #e8f5e9;
+  --fail-bg: #ffebee;
+  --body-bg: #f8fafc;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: Sarabun, sans-serif;
+  background: var(--body-bg);
+  color: #1a237e;
+  font-size: 11px;
+}
+#app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 8px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.tabs button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #e3f2fd;
+  color: #0d47a1;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.tabs button.on {
+  background: linear-gradient(135deg, var(--bd-dark), var(--yw-dark));
+  color: #fff;
+  box-shadow: 0 -2px 8px rgba(13, 71, 161, 0.25);
+}
+
+/* Header */
+.hdr {
+  background: linear-gradient(135deg, #f3f7ff 0%, #fffde7 100%);
+  border: 1.5px solid #fbc02d;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.1);
+}
+.hdr-title {
+  text-align: center;
+  border-bottom: 2px solid var(--yw-dark);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+.hdr-title h2 {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--yw-dark);
+}
+.hdr-title small {
+  font-size: 9px;
+  color: #3f51b5;
+}
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 9px;
+  font-weight: 800;
+  margin-left: 8px;
+  background: #f3f7ff;
+  color: #0d47a1;
+  border: 1px solid #1976d2;
+}
+
+.r {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.r label {
+  font-weight: 700;
+  font-size: 10px;
+  color: #0d47a1;
+  white-space: nowrap;
+}
+.r input[type="text"],
+.r input[type="date"],
+.r select {
+  padding: 2px 5px;
+  border: 1px solid #1976d2;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: inherit;
+  background: #f3f7ff;
+}
+.r input[type="date"] {
+  width: 110px;
+}
+
+.cd {
+  background: #fff;
+  border: 1px solid #e3f2fd;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 5px;
+  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.07);
+}
+
+/* ADPIE Sections */
+.adpie-section {
+  background: linear-gradient(135deg, #f3f7ff, #fffde7);
+  border: 1px solid #1976d2;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.08);
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  font-weight: 800;
+  font-size: 11px;
+  color: var(--bd-dark);
+  cursor: pointer;
+  user-select: none;
+}
+.section-head::before {
+  content: "▶";
+  display: inline-block;
+  width: 12px;
+  transition: transform 0.2s;
+}
+.section-head.open::before {
+  transform: rotate(90deg);
+}
+.section-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, var(--bd-mid), var(--yw-dark));
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  margin-right: 4px;
+}
+.section-content {
+  display: none;
+  padding-left: 36px;
+}
+.section-content.show {
+  display: block;
+}
+
+/* Audit Item Row */
+.audit-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 5px;
+  margin-bottom: 4px;
+  background: #fafbff;
+  border: 1px solid #e8eef5;
+  border-radius: 4px;
+  font-size: 10px;
+}
+.audit-item-label {
+  flex: 1;
+  font-weight: 600;
+  color: #0d47a1;
+  padding-top: 2px;
+  line-height: 1.3;
+}
+.audit-buttons {
+  display: flex;
+  gap: 2px;
+}
+.score-btn {
+  padding: 2px 6px;
+  border: 1px solid #1976d2;
+  background: #e3f2fd;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 700;
+  transition: all 0.1s;
+  white-space: nowrap;
+  min-width: 28px;
+  text-align: center;
+}
+.score-btn:hover {
+  filter: brightness(0.95);
+}
+.score-btn.active {
+  color: #fff;
+  font-weight: 800;
+}
+.score-btn.p1 {
+  background: #a5d6a7;
+  color: #1b5e20;
+  border-color: #81c784;
+}
+.score-btn.p0 {
+  background: #ef5350;
+  color: #fff;
+  border-color: #e53935;
+}
+.score-btn.pn {
+  background: #fdd835;
+  color: #f57f17;
+  border-color: #fbc02d;
+}
+
+/* Score Summary */
+.score-summary {
+  background: linear-gradient(135deg, var(--bd-light), var(--yw-light));
+  border: 1px solid #1976d2;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 5px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.score-summary > div {
+  font-size: 10px;
+  color: #0d47a1;
+}
+.score-summary b {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Buttons */
+.btn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.12s;
+}
+.btn:hover {
+  filter: brightness(0.92);
+}
+.btn-p {
+  background: var(--bd-dark);
+  color: #fff;
+}
+.btn-s {
+  background: #388e3c;
+  color: #fff;
+}
+.btn-o {
+  background: #fff;
+  border: 1.5px solid #1976d2;
+  color: #0d47a1;
+}
+.btn-save {
+  background: linear-gradient(135deg, var(--bd-mid), var(--yw-dark));
+  color: #fff;
+}
+
+/* Messages */
+.msg {
+  padding: 5px 8px;
+  text-align: center;
+  border-radius: 5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: 11px;
+  background: #e3f2fd;
+  color: #0d47a1;
+  border: 1px solid #1976d2;
+}
+
+/* KPI */
+.kpi-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.kpi {
+  flex: 1;
+  min-width: 100px;
+  background: linear-gradient(135deg, #f3f7ff, #fffde7);
+  border: 1px solid #1976d2;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.09);
+}
+.kpi .kl {
+  font-size: 8.5px;
+  color: #3f51b5;
+  margin-bottom: 2px;
+}
+.kpi .kv {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--bd-dark);
+}
+
+table.tbl {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 10px;
+  margin: 4px 0;
+}
+table.tbl th {
+  background: var(--bd-dark);
+  color: #fff;
+  padding: 3px;
+  border: 1px solid #0d47a1;
+  font-size: 9px;
+  text-align: center;
+  font-weight: 700;
+}
+table.tbl td {
+  border: 1px solid #e8eef5;
+  padding: 2px 3px;
+  text-align: center;
+}
+table.tbl tr.pass td {
+  background: #e8f5e9;
+}
+table.tbl tr.fail td {
+  background: #ffebee;
+}
+
+.status-pass {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--pass-bg);
+  color: #1b5e20;
+  font-weight: 700;
+  font-size: 9px;
+  border: 1px solid #a5d6a7;
+}
+.status-fail {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #ffcdd2;
+  color: #b71c1c;
+  font-weight: 700;
+  font-size: 9px;
+  border: 1px solid #ef5350;
+}
+
+.del-btn {
+  padding: 1px 5px;
+  border: 1px solid #ef5350;
+  background: #ffebee;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 9px;
+  color: #b71c1c;
+}
+.del-btn:hover {
+  background: #ffcdd2;
+}
+
+.sync-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 8px;
+  font-weight: 700;
+  background: #c8e6c9;
+  color: #1b5e20;
+  margin-left: 4px;
+}
+
+.sync-badge.unsync {
+  background: #ffccbc;
+  color: #d84315;
+}
+
+@media print {
+  .tabs, .btn, .del-btn, .msg, .no-print { display: none !important; }
+  .cd, .hdr { box-shadow: none !important; border-color: #ddd !important; }
+}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyBfRRyAE24x0V0TxYr6rZKXDcx3c6RKrq7-KjG8pv74kDccrpEHwTfSjNrX6JYexhl/exec";
+
+const ADPIE_ITEMS = [
+  {
+    section: "A",
+    label: "ประเมิน (Assessment)",
+    icon: "📋",
+    items: [
+      { id: "A1", label: "บันทึกอาการสำคัญ (CC) ประวัติการบาดเจ็บ/เจ็บป่วย และระยะเวลาชัดเจน" },
+      { id: "A2", label: "บันทึกสัญญาณชีพแรกรับครบถ้วน (BT, PR, RR, BP, O₂ Sat)" },
+      { id: "A3", label: "ลงบันทึกการคัดแยกระดับความรุนแรง (Triage Level) ถูกต้อง" },
+      { id: "A4", label: "บันทึกคะแนนความเจ็บปวด (Pain Score) ในเคสที่มีอาการปวด" }
+    ]
+  },
+  {
+    section: "D",
+    label: "วินิจฉัย (Diagnosis)",
+    icon: "🔍",
+    items: [
+      { id: "D1", label: "ข้อวินิจฉัยพยาบาล สอดคล้องกับปัญหาหลักและอาการสำคัญ (CC)" },
+      { id: "D2", label: "บันทึกข้อวินิจฉัยครอบคลุมภาวะเสี่ยงวิกฤต/ความปลอดภัย" },
+      { id: "D3", label: "เขียนถูกต้องตามหลักวิชาชีพพยาบาล (ไม่เขียนสับสนกับชื่อโรค)" }
+    ]
+  },
+  {
+    section: "P",
+    label: "วางแผน (Planning)",
+    icon: "📌",
+    items: [
+      { id: "P1", label: "ระบุเป้าหมายการพยาบาล/ผลลัพธ์ที่คาดหวังชัดเจนและวัดผลได้" },
+      { id: "P2", label: "กำหนดกิจกรรมการพยาบาล สอดคล้องกับข้อวินิจฉัยพยาบาล" },
+      { id: "P3", label: "มีแผนการส่งต่อ/ย้ายตึก ที่ปลอดภัยและเตรียมอุปกรณ์ครบ" }
+    ]
+  },
+  {
+    section: "I",
+    label: "ปฏิบัติการ (Implementation)",
+    icon: "🏥",
+    items: [
+      { id: "I1", label: "บันทึกกิจกรรมการพยาบาลครบถ้วนตามคำสั่งแพทย์ (ยา, สารน้ำ, หัตถการ)" },
+      { id: "I2", label: "บันทึกหัตถการมีการระบุ 'เวลา' ชัดเจน และลงนามผู้ปฏิบัติงาน" },
+      { id: "I3", label: "บันทึกมาตรการความปลอดภัย (Double Check ยา, HAD, prevention)" }
+    ]
+  },
+  {
+    section: "E",
+    label: "ประเมินผล (Evaluation)",
+    icon: "✓",
+    items: [
+      { id: "E1", label: "บันทึกการประเมินอาการซ้ำหลังให้กิจกรรม/ยา (Re-Pain score, Re-sugar)" },
+      { id: "E2", label: "บันทึกสัญญาณชีพครั้งสุดท้ายก่อนจำหน่าย (Discharge Vital Signs)" },
+      { id: "E3", label: "บันทึกเวลา/สถานะการจำหน่าย และคำแนะนำก่อนกลับบ้าน" }
+    ]
+  }
+];
+
+const toBE = iso => {
+  if (!iso || iso.length < 10) return "";
+  const p = iso.split("-");
+  return p[2] + "/" + p[1] + "/" + (+p[0] + 543);
+};
+
+const TODAY = new Date().toISOString().slice(0, 10);
+
+function loadLS() {
+  return JSON.parse(localStorage.getItem("erna_v3") || "[]");
+}
+
+let S = {
+  tab: "form",
+  records: loadLS(),
+  i: {
+    hcode: "11156",
+    hn: "",
+    hname: "",
+    triageLevel: "Level 3",
+    nurseName: "",
+    visitDate: TODAY
+  },
+  scores: {},
+  editId: null,
+  msg: "",
+  syncStatus: "✓ Local"
+};
+
+function calcScore(sc) {
+  let sum = 0, full = 0;
+  ADPIE_ITEMS.forEach(sec => {
+    sec.items.forEach(item => {
+      const v = sc[item.id];
+      if (v !== "N") {
+        sum += (v === 1 ? 1 : 0);
+        full++;
+      }
+    });
+  });
+  return { sum, full, pct: full ? Math.round(sum / full * 10000) / 100 : 0 };
+}
+
+const sv = () => {
+  localStorage.setItem("erna_v3", JSON.stringify(S.records));
+};
+
+function h(t, a, ...ch) {
+  const e = document.createElement(t);
+  if (a) {
+    Object.entries(a).forEach(([k, v]) => {
+      if (k === "style" && typeof v === "object") Object.assign(e.style, v);
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2).toLowerCase(), v);
+      else if (k === "className") e.className = v;
+      else if (k === "value" && t !== "option") e.value = v;
+      else if (k === "checked") e.checked = v;
+      else e.setAttribute(k, v);
+    });
+  }
+  ch.flat(9).forEach(c => {
+    if (c != null && c !== false) {
+      e.appendChild(typeof c === "string" || typeof c === "number" ? document.createTextNode(String(c)) : c);
+    }
+  });
+  return e;
+}
+
+function toggleSection(id) {
+  const el = document.getElementById("section-" + id);
+  if (el) {
+    el.classList.toggle("open");
+    const content = document.getElementById("content-" + id);
+    if (content) content.classList.toggle("show");
+  }
+}
+
+async function syncToCloud() {
+  if (!S.records.length) {
+    S.msg = "⚠️ ไม่มีข้อมูลให้ sync";
+    ren();
+    return;
+  }
+
+  S.msg = "☁️ กำลังส่งไป Cloud...";
+  ren();
+
+  try {
+    // ส่งไป GAS ผ่าน form (ไม่ need CORS)
+    const formData = new FormData();
+    formData.append("action", "syncRecords");
+    formData.append("data", JSON.stringify(S.records));
+
+    const r = await fetch(GAS_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    if (r.ok) {
+      S.msg = "✅ Sync สำเร็จ! (" + S.records.length + " ราย)";
+      S.syncStatus = "✓ Synced";
+    } else {
+      S.msg = "⚠️ Sync error - ข้อมูลเก็บใน Local ได้";
+      S.syncStatus = "⚠️ Not synced";
+    }
+  } catch (e) {
+    console.error("Sync error:", e);
+    S.msg = "⚠️ ไม่สามารถ Sync ได้ - ข้อมูลเก็บใน Local";
+    S.syncStatus = "⚠️ Not synced";
+  }
+
+  ren();
+  setTimeout(() => { S.msg = ""; ren(); }, 3000);
+}
+
+function ren() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  const tot = calcScore(S.scores);
+
+  app.appendChild(h("div", { className: "tabs" },
+    h("button", { className: S.tab === "form" ? "on" : "", onClick: () => { S.tab = "form"; ren(); } }, "✍️ บันทึกข้อมูล"),
+    h("button", { className: S.tab === "report" ? "on" : "", onClick: () => { S.tab = "report"; ren(); } }, "📊 ดูรายงาน (" + S.records.length + ")"),
+    h("button", { className: "btn btn-o", style: { padding: "4px 10px", fontSize: "9px" }, onClick: syncToCloud }, "☁️ Sync ไป Sheets")
+  ));
+
+  if (S.msg) {
+    app.appendChild(h("div", { className: "msg" }, S.msg));
+  }
+
+  if (S.tab === "form") rF(app, tot);
+  else rR(app);
+}
+
+function rF(app, tot) {
+  if (S.editId) {
+    app.appendChild(h("div", { className: "msg", style: { display: "flex", justifyContent: "space-between" } },
+      "✏️ แก้ไข HN: " + S.i.hn,
+      h("button", { className: "btn btn-o", style: { padding: "1px 6px", fontSize: "9px" }, onClick: () => { S.editId = null; rst(); ren(); } }, "ยกเลิก")
+    ));
+  }
+
+  app.appendChild(h("div", { className: "hdr" },
+    h("div", { className: "hdr-title" },
+      h("small", null, "แบบตรวจประเมินคุณภาพการพยาบาล ER"),
+      h("h2", null, "ตรวจประเมินปฏิบัติการพยาบาลตาม ADPIE"),
+      h("span", { className: "badge" }, "พยาบาล ER | 12 ข้อ")
+    ),
+    h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "8px" } },
+      h("div", { style: { padding: "6px", background: "#f3f7ff", borderRadius: "4px", border: "1px solid #1976d2" } },
+        h("div", { style: { fontSize: "9px", fontWeight: "700", color: "#0d47a1", marginBottom: "2px" } }, "🏥 โรงพยาบาล"),
+        h("div", { style: { fontSize: "11px", fontWeight: "700", color: "#0d47a1" } }, "รพ.ห้างฉัตร"),
+        h("div", { style: { fontSize: "8px", color: "#666" } }, "Hcode: 11156")
+      ),
+      h("div", { style: { padding: "6px", background: "#fffde7", borderRadius: "4px", border: "1px solid #fbc02d" } },
+        h("label", { style: { display: "block", fontSize: "9px", fontWeight: "700", color: "#f57f17", marginBottom: "3px" } }, "📋 HN:"),
+        h("input", { type: "text", value: S.i.hn, style: { width: "100%", padding: "4px", fontWeight: "700", border: "1px solid #fbc02d", borderRadius: "3px", fontSize: "11px" }, onChange: e => { S.i.hn = e.target.value; }, placeholder: "เบอร์บันทึก" })
+      )
+    ),
+    h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "8px" } },
+      h("div", { style: { padding: "6px", background: "#fffde7", borderRadius: "4px", border: "1px solid #fbc02d" } },
+        h("label", { style: { display: "block", fontSize: "9px", fontWeight: "700", color: "#f57f17", marginBottom: "3px" } }, "👤 ชื่อ-สกุล:"),
+        h("input", { type: "text", value: S.i.hname, style: { width: "100%", padding: "4px", border: "1px solid #fbc02d", borderRadius: "3px", fontSize: "11px" }, onChange: e => { S.i.hname = e.target.value; } })
+      ),
+      h("div", { style: { padding: "6px", background: "#fffde7", borderRadius: "4px", border: "1px solid #fbc02d" } },
+        h("label", { style: { display: "block", fontSize: "9px", fontWeight: "700", color: "#f57f17", marginBottom: "3px" } }, "⚠️ ระดับความรุนแรง:"),
+        h("select", { value: S.i.triageLevel, style: { width: "100%", padding: "4px", border: "1px solid #fbc02d", borderRadius: "3px", fontSize: "11px" }, onChange: e => { S.i.triageLevel = e.target.value; } },
+          h("option", null, "Level 1 (วิกฤต)"),
+          h("option", null, "Level 2 (ฉุกเฉิน)"),
+          h("option", null, "Level 3 (เร่งด่วน)"),
+          h("option", null, "Level 4-5 (ไม่รุนแรง)")
+        )
+      )
+    ),
+    h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" } },
+      h("div", { style: { padding: "6px", background: "#fffde7", borderRadius: "4px", border: "1px solid #fbc02d" } },
+        h("label", { style: { display: "block", fontSize: "9px", fontWeight: "700", color: "#f57f17", marginBottom: "3px" } }, "👨‍⚕️ ชื่อพยาบาลผู้บันทึก:"),
+        h("input", { type: "text", value: S.i.nurseName, style: { width: "100%", padding: "4px", border: "1px solid #fbc02d", borderRadius: "3px", fontSize: "11px" }, onChange: e => { S.i.nurseName = e.target.value; } })
+      ),
+      h("div", { style: { padding: "6px", background: "#fffde7", borderRadius: "4px", border: "1px solid #fbc02d" } },
+        h("label", { style: { display: "block", fontSize: "9px", fontWeight: "700", color: "#f57f17", marginBottom: "3px" } }, "📅 วันที่รับบริการ:"),
+        h("input", { type: "date", value: S.i.visitDate, style: { width: "100%", padding: "4px", border: "1px solid #fbc02d", borderRadius: "3px", fontSize: "11px" }, onChange: e => { S.i.visitDate = e.target.value; ren(); } })
+      )
+    )
+  ));
+
+  /* Score Summary */
+  app.appendChild(h("div", { className: "score-summary" },
+    h("div", null, "Full Items: ", h("b", { style: { color: "#0d47a1" } }, String(tot.full))),
+    h("div", null, "Sum Score: ", h("b", { style: { color: "#1976d2" } }, String(tot.sum))),
+    h("div", null, "% ", h("b", { style: { color: tot.pct >= 90 ? "#16a34a" : "#d32f2f", fontSize: "16px" } }, String(tot.pct))),
+    h("div", { style: { marginLeft: "auto", fontSize: "9px", color: "#666" } }, "🎯 เป้าหมาย: >90%")
+  ));
+
+  /* ADPIE Sections */
+  ADPIE_ITEMS.forEach(sec => {
+    const secDiv = h("div", { className: "adpie-section" });
+    const secHead = h("div", { className: "section-head open", id: "section-" + sec.section, onClick: () => toggleSection(sec.section) });
+    const icon = h("span", { className: "section-icon" }, sec.icon);
+    secHead.appendChild(icon);
+    secHead.appendChild(h("span", null, sec.label + " (" + sec.items.length + " items)"));
+    secDiv.appendChild(secHead);
+
+    const secContent = h("div", { className: "section-content show", id: "content-" + sec.section });
+    sec.items.forEach(item => {
+      const itemDiv = h("div", { className: "audit-item" });
+      itemDiv.appendChild(h("div", { className: "audit-item-label" }, item.label));
+
+      const btnGroup = h("div", { className: "audit-buttons" });
+      const v = S.scores[item.id];
+
+      const btn1 = h("button", { className: "score-btn" + (v === 1 ? " p1 active" : "") }, "✓");
+      btn1.addEventListener("click", () => { S.scores[item.id] = 1; ren(); });
+      btnGroup.appendChild(btn1);
+
+      const btn0 = h("button", { className: "score-btn" + (v === 0 ? " p0 active" : "") }, "✗");
+      btn0.addEventListener("click", () => { S.scores[item.id] = 0; ren(); });
+      btnGroup.appendChild(btn0);
+
+      const btnN = h("button", { className: "score-btn" + (v === "N" ? " pn active" : "") }, "N/A");
+      btnN.addEventListener("click", () => { S.scores[item.id] = "N"; ren(); });
+      btnGroup.appendChild(btnN);
+
+      itemDiv.appendChild(btnGroup);
+      secContent.appendChild(itemDiv);
+    });
+
+    secDiv.appendChild(secContent);
+    app.appendChild(secDiv);
+  });
+
+  /* Buttons */
+  app.appendChild(h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", margin: "6px 0" } },
+    h("button", { className: "btn btn-p", onClick: () => {
+      if (!S.i.hn) { S.msg = "⚠️ กรุณาใส่ HN"; ren(); return; }
+      const t = calcScore(S.scores);
+      const rec = {
+        id: S.editId || Date.now(),
+        ...JSON.parse(JSON.stringify(S.i)),
+        scores: { ...S.scores },
+        sum: t.sum,
+        full: t.full,
+        pct: t.pct,
+        daStr: toBE(S.i.visitDate),
+        synced: false
+      };
+      if (S.editId) {
+        S.records = S.records.map(r => r.id === S.editId ? rec : r);
+        S.editId = null;
+      } else {
+        S.records.unshift(rec);
+      }
+      sv();
+      S.msg = "✅ บันทึก HN:" + S.i.hn + " = " + t.sum + "/" + t.full + " (" + t.pct + "%) [Local]";
+      rst();
+      ren();
+    } }, "💾 บันทึกข้อมูล"),
+    h("button", { className: "btn btn-s", onClick: () => { rst(); ren(); } }, "📝 เพิ่มเคสต่อไป"),
+    h("button", { className: "btn btn-o", onClick: () => { S.tab = "report"; ren(); } }, "📊 ดูรายงาน")
+  ));
+
+  /* Recent Records */
+  if (S.records.length) {
+    const t = h("table", { className: "tbl" });
+    t.appendChild(h("thead", null, h("tr", null, ...["#", "HN", "ชื่อ", "Triage", "Sum/Full", "%", "VD", ""].map(x => h("th", null, x)))));
+    const tb = h("tbody");
+    S.records.forEach((r, i) => {
+      const pass = (r.pct || 0) >= 90;
+      const tr = h("tr", { className: pass ? "pass" : "fail" },
+        h("td", null, String(i + 1)),
+        h("td", { style: { fontWeight: "700", color: "#1976d2", cursor: "pointer" }, onClick: () => loadEdit(r) }, r.hn),
+        h("td", { style: { fontSize: "9px", textAlign: "left" } }, r.hname || ""),
+        h("td", { style: { fontSize: "9px" } }, r.triageLevel || "-"),
+        h("td", null, (r.sum || 0) + "/" + (r.full || 0)),
+        h("td", null, h("span", { className: pass ? "status-pass" : "status-fail" }, String(r.pct || 0) + "%")),
+        h("td", { style: { fontSize: "9px" } }, r.visitDate ? r.visitDate.slice(5) : "-")
+      );
+      const dB = h("button", { className: "del-btn" }, "🗑");
+      dB.addEventListener("click", () => { S.records = S.records.filter(x => x.id !== r.id); sv(); ren(); });
+      tr.appendChild(h("td", null, dB));
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    app.appendChild(h("div", { className: "cd", style: { padding: "6px 8px" } },
+      h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "3px" } }, "📋 บันทึกที่สำเร็จ (" + S.records.length + ")"),
+      t
+    ));
+  }
+}
+
+function loadEdit(r) {
+  S.editId = r.id;
+  S.i = { ...r };
+  S.scores = { ...r.scores };
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  ren();
+}
+
+function rst() {
+  S.scores = {};
+  S.editId = null;
+  S.i = {
+    hcode: "11156",
+    hn: "",
+    hname: "",
+    triageLevel: "Level 3",
+    nurseName: "",
+    visitDate: TODAY
+  };
+}
+
+function rR(app) {
+  if (!S.records.length) {
+    app.appendChild(h("div", { style: { textAlign: "center", padding: "30px", color: "#aaa" } }, "ยังไม่มีข้อมูล"));
+    return;
+  }
+
+  const totalSum = S.records.reduce((a, r) => a + (r.sum || 0), 0);
+  const totalFull = S.records.reduce((a, r) => a + (r.full || 0), 0);
+  const avgPct = S.records.length ? (S.records.reduce((a, r) => a + (r.pct || 0), 0) / S.records.length).toFixed(1) : 0;
+  const passN = S.records.filter(r => (r.pct || 0) >= 90).length;
+  const failN = S.records.length - passN;
+
+  /* KPI */
+  app.appendChild(h("div", { className: "cd" },
+    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📊 สรุปผลการตรวจประเมิน"),
+    h("div", { className: "kpi-row" },
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "จำนวนเวชระเบียน"), h("div", { className: "kv" }, S.records.length + " ราย")),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "Full Score รวม"), h("div", { className: "kv", style: { color: "#0d47a1" } }, totalFull)),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "Sum Score รวม"), h("div", { className: "kv", style: { color: "#1976d2" } }, totalSum)),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "ร้อยละเฉลี่ย"), h("div", { className: "kv", style: { color: +avgPct >= 90 ? "#16a34a" : "#d32f2f" } }, avgPct + "%")),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "✅ ผ่านเกณฑ์ ≥90%"), h("div", { className: "kv", style: { color: "#16a34a" } }, passN + " ราย")),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "⚠️ ต้องปรับปรุง"), h("div", { className: "kv", style: { color: failN ? "#d32f2f" : "#90a4ae" } }, failN + " ราย"))
+    )
+  ));
+
+  /* Detail Table */
+  app.appendChild(h("div", { className: "cd" },
+    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📋 รายละเอียด (" + S.records.length + " ราย)"),
+    (() => {
+      const t = h("table", { className: "tbl" });
+      t.appendChild(h("thead", null, h("tr", null, ...[" #", "HN", "ชื่อ", "Triage", "Sum/Full", "%", "VD", ""].map(x => h("th", null, x)))));
+      const tb = h("tbody");
+      S.records.forEach((r, i) => {
+        const pass = (r.pct || 0) >= 90;
+        tb.appendChild(h("tr", { className: pass ? "pass" : "fail" },
+          h("td", null, String(i + 1)),
+          h("td", { style: { fontWeight: "700", color: "#1976d2" } }, r.hn),
+          h("td", { style: { fontSize: "9px", textAlign: "left" } }, r.hname || ""),
+          h("td", { style: { fontSize: "9px" } }, r.triageLevel || "-"),
+          h("td", null, (r.sum || 0) + "/" + (r.full || 0)),
+          h("td", null, h("span", { className: pass ? "status-pass" : "status-fail" }, String(r.pct || 0) + "%")),
+          h("td", { style: { fontSize: "9px" } }, r.visitDate ? r.visitDate.slice(5) : "-"),
+          (() => {
+            const dB = h("button", { className: "del-btn" }, "🗑");
+            dB.addEventListener("click", () => { S.records = S.records.filter(x => x.id !== r.id); sv(); ren(); });
+            return h("td", null, dB);
+          })()
+        ));
+      });
+      t.appendChild(tb);
+      return t;
+    })()
+  ));
+
+  app.appendChild(h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", margin: "8px 0 20px" } },
+    h("button", { className: "btn btn-p", onClick: () => { S.tab = "form"; ren(); } }, "← กลับไปบันทึก"),
+    h("button", { className: "btn btn-o", onClick: () => window.print() }, "🖨 พิมพ์รายงาน")
+  ));
+}
+
+ren();
+</script>
+</body>
+</html>
