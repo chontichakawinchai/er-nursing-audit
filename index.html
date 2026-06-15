@@ -194,9 +194,10 @@ body {
   color: #fff;
   font-weight: 800;
 }
-.score-btn.p1 { background: #a5d6a7; color: #1b5e20; border-color: #81c784; }
-.score-btn.p0 { background: #ef5350; color: #fff; border-color: #e53935; }
-.score-btn.pN, .score-btn.pN.active { background: #fdd835 !important; color: #000 !important; border-color: #f9a825 !important; font-weight: 800; }
+.score-btn { padding: 2px 6px; border: 1px solid #1976d2; background: #e3f2fd; border-radius: 3px; cursor: pointer; font-size: 9px; font-weight: 700; min-width: 28px; text-align: center; }
+.score-btn.p1 { background: #a5d6a7 !important; color: #1b5e20 !important; border-color: #81c784 !important; }
+.score-btn.p0 { background: #ef5350 !important; color: #fff !important; border-color: #e53935 !important; }
+.score-btn.pN { background: #fdd835 !important; color: #000 !important; border-color: #f9a825 !important; font-weight: 800 !important; }
 
 .score-summary {
   background: linear-gradient(135deg, var(--bd-light), var(--yw-light));
@@ -408,13 +409,6 @@ const toBE = iso => {
 const TODAY = new Date().toISOString().slice(0, 10);
 
 function loadLS() {
-  // Clear all old keys on first load
-  const hasV4 = localStorage.getItem("erna_v4_init");
-  if (!hasV4) {
-    localStorage.removeItem("erna_v3");
-    localStorage.removeItem("erna_v2");
-    localStorage.setItem("erna_v4_init", "1");
-  }
   return JSON.parse(localStorage.getItem("erna_v4") || "[]");
 }
 
