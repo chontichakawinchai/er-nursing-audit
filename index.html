@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ER Nursing Audit (ADPIE) v3 - Sync Ready</title>
+  <title>ER Nursing Audit (ADPIE) v4 - Complete</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <style>
@@ -32,12 +32,11 @@ body {
   font-size: 11px;
 }
 #app {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 8px;
 }
 
-/* Tabs */
 .tabs {
   display: flex;
   gap: 4px;
@@ -55,22 +54,18 @@ body {
   background: #e3f2fd;
   color: #0d47a1;
   font-family: inherit;
-  transition: all 0.15s;
 }
 .tabs button.on {
   background: linear-gradient(135deg, var(--bd-dark), var(--yw-dark));
   color: #fff;
-  box-shadow: 0 -2px 8px rgba(13, 71, 161, 0.25);
 }
 
-/* Header */
 .hdr {
   background: linear-gradient(135deg, #f3f7ff 0%, #fffde7 100%);
   border: 1.5px solid #fbc02d;
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 6px;
-  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.1);
 }
 .hdr-title {
   text-align: center;
@@ -83,20 +78,17 @@ body {
   font-weight: 800;
   color: var(--yw-dark);
 }
-.hdr-title small {
-  font-size: 9px;
-  color: #3f51b5;
-}
+
 .badge {
   display: inline-block;
   padding: 3px 12px;
   border-radius: 12px;
   font-size: 9px;
   font-weight: 800;
-  margin-left: 8px;
   background: #f3f7ff;
   color: #0d47a1;
   border: 1px solid #1976d2;
+  margin-left: 8px;
 }
 
 .r {
@@ -112,9 +104,7 @@ body {
   color: #0d47a1;
   white-space: nowrap;
 }
-.r input[type="text"],
-.r input[type="date"],
-.r select {
+.r input, .r select {
   padding: 2px 5px;
   border: 1px solid #1976d2;
   border-radius: 3px;
@@ -132,17 +122,14 @@ body {
   border-radius: 6px;
   padding: 6px 8px;
   margin-bottom: 5px;
-  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.07);
 }
 
-/* ADPIE Sections */
 .adpie-section {
   background: linear-gradient(135deg, #f3f7ff, #fffde7);
   border: 1px solid #1976d2;
   border-radius: 8px;
   padding: 8px;
   margin-bottom: 6px;
-  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.08);
 }
 .section-head {
   display: flex;
@@ -164,20 +151,6 @@ body {
 .section-head.open::before {
   transform: rotate(90deg);
 }
-.section-icon {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, var(--bd-mid), var(--yw-dark));
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  margin-right: 4px;
-}
 .section-content {
   display: none;
   padding-left: 36px;
@@ -186,7 +159,6 @@ body {
   display: block;
 }
 
-/* Audit Item Row */
 .audit-item {
   display: flex;
   gap: 8px;
@@ -196,13 +168,11 @@ body {
   background: #fafbff;
   border: 1px solid #e8eef5;
   border-radius: 4px;
-  font-size: 10px;
 }
 .audit-item-label {
   flex: 1;
   font-weight: 600;
   color: #0d47a1;
-  padding-top: 2px;
   line-height: 1.3;
 }
 .audit-buttons {
@@ -217,35 +187,17 @@ body {
   cursor: pointer;
   font-size: 9px;
   font-weight: 700;
-  transition: all 0.1s;
-  white-space: nowrap;
   min-width: 28px;
   text-align: center;
-}
-.score-btn:hover {
-  filter: brightness(0.95);
 }
 .score-btn.active {
   color: #fff;
   font-weight: 800;
 }
-.score-btn.p1 {
-  background: #a5d6a7;
-  color: #1b5e20;
-  border-color: #81c784;
-}
-.score-btn.p0 {
-  background: #ef5350;
-  color: #fff;
-  border-color: #e53935;
-}
-.score-btn.pn {
-  background: #fdd835;
-  color: #f57f17;
-  border-color: #fbc02d;
-}
+.score-btn.p1 { background: #a5d6a7; color: #1b5e20; border-color: #81c784; }
+.score-btn.p0 { background: #ef5350; color: #fff; border-color: #e53935; }
+.score-btn.pn { background: #fdd835; color: #f57f17; border-color: #fbc02d; }
 
-/* Score Summary */
 .score-summary {
   background: linear-gradient(135deg, var(--bd-light), var(--yw-light));
   border: 1px solid #1976d2;
@@ -266,7 +218,6 @@ body {
   font-weight: 800;
 }
 
-/* Buttons */
 .btn {
   padding: 5px 12px;
   border: none;
@@ -275,30 +226,11 @@ body {
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  transition: filter 0.12s;
 }
-.btn:hover {
-  filter: brightness(0.92);
-}
-.btn-p {
-  background: var(--bd-dark);
-  color: #fff;
-}
-.btn-s {
-  background: #388e3c;
-  color: #fff;
-}
-.btn-o {
-  background: #fff;
-  border: 1.5px solid #1976d2;
-  color: #0d47a1;
-}
-.btn-save {
-  background: linear-gradient(135deg, var(--bd-mid), var(--yw-dark));
-  color: #fff;
-}
+.btn-p { background: var(--bd-dark); color: #fff; }
+.btn-s { background: #388e3c; color: #fff; }
+.btn-o { background: #fff; border: 1.5px solid #1976d2; color: #0d47a1; }
 
-/* Messages */
 .msg {
   padding: 5px 8px;
   text-align: center;
@@ -311,7 +243,6 @@ body {
   border: 1px solid #1976d2;
 }
 
-/* KPI */
 .kpi-row {
   display: flex;
   gap: 6px;
@@ -326,18 +257,9 @@ body {
   border-radius: 8px;
   padding: 8px;
   text-align: center;
-  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.09);
 }
-.kpi .kl {
-  font-size: 8.5px;
-  color: #3f51b5;
-  margin-bottom: 2px;
-}
-.kpi .kv {
-  font-weight: 800;
-  font-size: 16px;
-  color: var(--bd-dark);
-}
+.kpi .kl { font-size: 8.5px; color: #3f51b5; margin-bottom: 2px; }
+.kpi .kv { font-weight: 800; font-size: 16px; color: var(--bd-dark); }
 
 table.tbl {
   border-collapse: collapse;
@@ -351,7 +273,6 @@ table.tbl th {
   padding: 3px;
   border: 1px solid #0d47a1;
   font-size: 9px;
-  text-align: center;
   font-weight: 700;
 }
 table.tbl td {
@@ -359,12 +280,8 @@ table.tbl td {
   padding: 2px 3px;
   text-align: center;
 }
-table.tbl tr.pass td {
-  background: #e8f5e9;
-}
-table.tbl tr.fail td {
-  background: #ffebee;
-}
+table.tbl tr.pass td { background: #e8f5e9; }
+table.tbl tr.fail td { background: #ffebee; }
 
 .status-pass {
   display: inline-block;
@@ -396,29 +313,29 @@ table.tbl tr.fail td {
   font-size: 9px;
   color: #b71c1c;
 }
-.del-btn:hover {
-  background: #ffcdd2;
+
+.chart-container {
+  position: relative;
+  height: 250px;
+  margin: 8px 0;
+  padding: 8px;
+  background: #fafbff;
+  border: 1px solid #e3f2fd;
+  border-radius: 6px;
 }
 
-.sync-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 8px;
-  font-weight: 700;
-  background: #c8e6c9;
-  color: #1b5e20;
-  margin-left: 4px;
-}
-
-.sync-badge.unsync {
-  background: #ffccbc;
-  color: #d84315;
+.rpt-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--bd-dark);
+  border-bottom: 2px solid var(--yw-dark);
+  padding-bottom: 3px;
+  margin-bottom: 5px;
 }
 
 @media print {
   .tabs, .btn, .del-btn, .msg, .no-print { display: none !important; }
-  .cd, .hdr { box-shadow: none !important; border-color: #ddd !important; }
 }
   </style>
 </head>
@@ -491,7 +408,7 @@ const toBE = iso => {
 const TODAY = new Date().toISOString().slice(0, 10);
 
 function loadLS() {
-  return JSON.parse(localStorage.getItem("erna_v3") || "[]");
+  return JSON.parse(localStorage.getItem("erna_v4") || "[]");
 }
 
 let S = {
@@ -508,7 +425,8 @@ let S = {
   scores: {},
   editId: null,
   msg: "",
-  syncStatus: "✓ Local"
+  rptFrom: "",
+  rptTo: ""
 };
 
 function calcScore(sc) {
@@ -526,7 +444,7 @@ function calcScore(sc) {
 }
 
 const sv = () => {
-  localStorage.setItem("erna_v3", JSON.stringify(S.records));
+  localStorage.setItem("erna_v4", JSON.stringify(S.records));
 };
 
 function h(t, a, ...ch) {
@@ -569,9 +487,7 @@ async function syncToCloud() {
   ren();
 
   try {
-    // ส่งไป GAS ผ่าน form (ไม่ need CORS)
     const formData = new FormData();
-    formData.append("action", "syncRecords");
     formData.append("data", JSON.stringify(S.records));
 
     const r = await fetch(GAS_URL, {
@@ -581,15 +497,12 @@ async function syncToCloud() {
 
     if (r.ok) {
       S.msg = "✅ Sync สำเร็จ! (" + S.records.length + " ราย)";
-      S.syncStatus = "✓ Synced";
     } else {
       S.msg = "⚠️ Sync error - ข้อมูลเก็บใน Local ได้";
-      S.syncStatus = "⚠️ Not synced";
     }
   } catch (e) {
     console.error("Sync error:", e);
     S.msg = "⚠️ ไม่สามารถ Sync ได้ - ข้อมูลเก็บใน Local";
-    S.syncStatus = "⚠️ Not synced";
   }
 
   ren();
@@ -604,8 +517,8 @@ function ren() {
 
   app.appendChild(h("div", { className: "tabs" },
     h("button", { className: S.tab === "form" ? "on" : "", onClick: () => { S.tab = "form"; ren(); } }, "✍️ บันทึกข้อมูล"),
-    h("button", { className: S.tab === "report" ? "on" : "", onClick: () => { S.tab = "report"; ren(); } }, "📊 ดูรายงาน (" + S.records.length + ")"),
-    h("button", { className: "btn btn-o", style: { padding: "4px 10px", fontSize: "9px" }, onClick: syncToCloud }, "☁️ Sync ไป Sheets")
+    h("button", { className: S.tab === "report" ? "on" : "", onClick: () => { S.tab = "report"; ren(); } }, "📊 รายงาน (" + S.records.length + ")"),
+    h("button", { className: "btn btn-o", style: { padding: "4px 10px", fontSize: "9px" }, onClick: syncToCloud }, "☁️ Sync")
   ));
 
   if (S.msg) {
@@ -668,7 +581,6 @@ function rF(app, tot) {
     )
   ));
 
-  /* Score Summary */
   app.appendChild(h("div", { className: "score-summary" },
     h("div", null, "Full Items: ", h("b", { style: { color: "#0d47a1" } }, String(tot.full))),
     h("div", null, "Sum Score: ", h("b", { style: { color: "#1976d2" } }, String(tot.sum))),
@@ -676,13 +588,10 @@ function rF(app, tot) {
     h("div", { style: { marginLeft: "auto", fontSize: "9px", color: "#666" } }, "🎯 เป้าหมาย: >90%")
   ));
 
-  /* ADPIE Sections */
   ADPIE_ITEMS.forEach(sec => {
     const secDiv = h("div", { className: "adpie-section" });
     const secHead = h("div", { className: "section-head open", id: "section-" + sec.section, onClick: () => toggleSection(sec.section) });
-    const icon = h("span", { className: "section-icon" }, sec.icon);
-    secHead.appendChild(icon);
-    secHead.appendChild(h("span", null, sec.label + " (" + sec.items.length + " items)"));
+    secHead.appendChild(h("span", null, sec.icon + " " + sec.label + " (" + sec.items.length + ")"));
     secDiv.appendChild(secHead);
 
     const secContent = h("div", { className: "section-content show", id: "content-" + sec.section });
@@ -693,17 +602,11 @@ function rF(app, tot) {
       const btnGroup = h("div", { className: "audit-buttons" });
       const v = S.scores[item.id];
 
-      const btn1 = h("button", { className: "score-btn" + (v === 1 ? " p1 active" : "") }, "✓");
-      btn1.addEventListener("click", () => { S.scores[item.id] = 1; ren(); });
-      btnGroup.appendChild(btn1);
-
-      const btn0 = h("button", { className: "score-btn" + (v === 0 ? " p0 active" : "") }, "✗");
-      btn0.addEventListener("click", () => { S.scores[item.id] = 0; ren(); });
-      btnGroup.appendChild(btn0);
-
-      const btnN = h("button", { className: "score-btn" + (v === "N" ? " pn active" : "") }, "N/A");
-      btnN.addEventListener("click", () => { S.scores[item.id] = "N"; ren(); });
-      btnGroup.appendChild(btnN);
+      [1, 0, "N"].forEach(val => {
+        const btn = h("button", { className: "score-btn" + (v === val ? " p" + val + " active" : "") }, val === 1 ? "✓" : val === 0 ? "✗" : "N/A");
+        btn.addEventListener("click", () => { S.scores[item.id] = val; ren(); });
+        btnGroup.appendChild(btn);
+      });
 
       itemDiv.appendChild(btnGroup);
       secContent.appendChild(itemDiv);
@@ -713,7 +616,6 @@ function rF(app, tot) {
     app.appendChild(secDiv);
   });
 
-  /* Buttons */
   app.appendChild(h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", margin: "6px 0" } },
     h("button", { className: "btn btn-p", onClick: () => {
       if (!S.i.hn) { S.msg = "⚠️ กรุณาใส่ HN"; ren(); return; }
@@ -725,8 +627,7 @@ function rF(app, tot) {
         sum: t.sum,
         full: t.full,
         pct: t.pct,
-        daStr: toBE(S.i.visitDate),
-        synced: false
+        daStr: toBE(S.i.visitDate)
       };
       if (S.editId) {
         S.records = S.records.map(r => r.id === S.editId ? rec : r);
@@ -735,7 +636,7 @@ function rF(app, tot) {
         S.records.unshift(rec);
       }
       sv();
-      S.msg = "✅ บันทึก HN:" + S.i.hn + " = " + t.sum + "/" + t.full + " (" + t.pct + "%) [Local]";
+      S.msg = "✅ บันทึก HN:" + S.i.hn + " = " + t.sum + "/" + t.full + " (" + t.pct + "%)";
       rst();
       ren();
     } }, "💾 บันทึกข้อมูล"),
@@ -743,7 +644,6 @@ function rF(app, tot) {
     h("button", { className: "btn btn-o", onClick: () => { S.tab = "report"; ren(); } }, "📊 ดูรายงาน")
   ));
 
-  /* Recent Records */
   if (S.records.length) {
     const t = h("table", { className: "tbl" });
     t.appendChild(h("thead", null, h("tr", null, ...["#", "HN", "ชื่อ", "Triage", "Sum/Full", "%", "VD", ""].map(x => h("th", null, x)))));
@@ -794,22 +694,42 @@ function rst() {
 }
 
 function rR(app) {
-  if (!S.records.length) {
-    app.appendChild(h("div", { style: { textAlign: "center", padding: "30px", color: "#aaa" } }, "ยังไม่มีข้อมูล"));
+  app.appendChild(h("div", { className: "cd" },
+    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📅 กรองข้อมูล"),
+    h("div", { className: "r" },
+      h("label", null, "ตั้งแต่:"),
+      h("input", { type: "date", value: S.rptFrom, onChange: e => { S.rptFrom = e.target.value; ren(); } }),
+      h("label", null, "ถึง:"),
+      h("input", { type: "date", value: S.rptTo, onChange: e => { S.rptTo = e.target.value; ren(); } }),
+      h("button", { className: "btn btn-o", style: { padding: "2px 8px", fontSize: "10px" }, onClick: () => { S.rptFrom = ""; S.rptTo = ""; ren(); } }, "ล้าง")
+    )
+  ));
+
+  let recs = S.records;
+  if (S.rptFrom || S.rptTo) {
+    recs = recs.filter(r => {
+      const d = r.visitDate || "";
+      if (S.rptFrom && d < S.rptFrom) return false;
+      if (S.rptTo && d > S.rptTo) return false;
+      return true;
+    });
+  }
+
+  if (!recs.length) {
+    app.appendChild(h("div", { style: { textAlign: "center", padding: "20px", color: "#aaa" } }, "ไม่มีข้อมูล"));
     return;
   }
 
-  const totalSum = S.records.reduce((a, r) => a + (r.sum || 0), 0);
-  const totalFull = S.records.reduce((a, r) => a + (r.full || 0), 0);
-  const avgPct = S.records.length ? (S.records.reduce((a, r) => a + (r.pct || 0), 0) / S.records.length).toFixed(1) : 0;
-  const passN = S.records.filter(r => (r.pct || 0) >= 90).length;
-  const failN = S.records.length - passN;
+  const totalSum = recs.reduce((a, r) => a + (r.sum || 0), 0);
+  const totalFull = recs.reduce((a, r) => a + (r.full || 0), 0);
+  const avgPct = recs.length ? (recs.reduce((a, r) => a + (r.pct || 0), 0) / recs.length).toFixed(1) : 0;
+  const passN = recs.filter(r => (r.pct || 0) >= 90).length;
+  const failN = recs.length - passN;
 
-  /* KPI */
   app.appendChild(h("div", { className: "cd" },
-    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📊 สรุปผลการตรวจประเมิน"),
+    h("div", { className: "rpt-title" }, "📊 สรุปผลการตรวจประเมิน"),
     h("div", { className: "kpi-row" },
-      h("div", { className: "kpi" }, h("div", { className: "kl" }, "จำนวนเวชระเบียน"), h("div", { className: "kv" }, S.records.length + " ราย")),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "จำนวนเวชระเบียน"), h("div", { className: "kv" }, recs.length + " ราย")),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "Full Score รวม"), h("div", { className: "kv", style: { color: "#0d47a1" } }, totalFull)),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "Sum Score รวม"), h("div", { className: "kv", style: { color: "#1976d2" } }, totalSum)),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "ร้อยละเฉลี่ย"), h("div", { className: "kv", style: { color: +avgPct >= 90 ? "#16a34a" : "#d32f2f" } }, avgPct + "%")),
@@ -818,14 +738,114 @@ function rR(app) {
     )
   ));
 
-  /* Detail Table */
+  const secData = [];
+  ADPIE_ITEMS.forEach(sec => {
+    let sum = 0, full = 0;
+    sec.items.forEach(item => {
+      recs.forEach(rec => {
+        const v = rec.scores[item.id];
+        if (v !== "N") {
+          sum += (v === 1 ? 1 : 0);
+          full++;
+        }
+      });
+    });
+    secData.push({
+      section: sec.section,
+      label: sec.label.split(" ")[0],
+      sum,
+      full,
+      pct: full ? Math.round(sum / full * 10000) / 100 : 0
+    });
+  });
+
   app.appendChild(h("div", { className: "cd" },
-    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📋 รายละเอียด (" + S.records.length + " ราย)"),
+    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "5px" } }, "📈 คะแนนรายหมวด ADPIE"),
+    h("div", { className: "chart-container" }, h("canvas", { id: "chartSec" })),
+    (() => {
+      const t = h("table", { className: "tbl", style: { marginTop: "5px" } });
+      t.appendChild(h("thead", null, h("tr", null, h("th", null, "Section"), h("th", null, "Label"), h("th", null, "Full"), h("th", null, "Sum"), h("th", null, "%"), h("th", null, "Status"))));
+      const tb = h("tbody");
+      secData.forEach(d => {
+        const pass = d.pct >= 90;
+        tb.appendChild(h("tr", { style: { background: pass ? "#e8f5e9" : "#ffebee" } },
+          h("td", { style: { fontWeight: "800", color: "var(--bd-dark)" } }, d.section),
+          h("td", { style: { textAlign: "left", fontSize: "10px" } }, d.label),
+          h("td", null, String(d.full)),
+          h("td", null, String(d.sum)),
+          h("td", { style: { fontWeight: "800", color: pass ? "#16a34a" : "#d32f2f" } }, String(d.pct) + "%"),
+          h("td", null, h("span", { className: pass ? "status-pass" : "status-fail" }, pass ? "✅ ผ่าน" : "❌ ต้องปรับ"))
+        ));
+      });
+      t.appendChild(tb);
+      return t;
+    })()
+  ));
+
+  const improvements = {
+    "A1": "👉 ใส่ CC + เหตุการณ์ + ระยะเวลา",
+    "A2": "👉 Vital Signs ครบทั้ง 5 ตัว (BT/PR/RR/BP/O₂)",
+    "A3": "👉 ตรวจสอบ Triage Level ก่อน Discharge",
+    "A4": "👉 บันทึก Pain Score แต่ละ Shift",
+    "D1": "👉 ตรวจสอบ Nursing Dx ตรงกับ CC",
+    "D2": "👉 เพิ่ม Risk Diagnosis เกี่ยวกับความปลอดภัย",
+    "D3": "👉 ใช้ NANDA-I อย่างถูกต้อง ไม่ใช่ Medical Dx",
+    "P1": "👉 Goal ต้อง SMART และวัดผลได้",
+    "P2": "👉 Intervention ต้องเจาะจง (Specific)",
+    "P3": "👉 ตรวจสอบ Physician Order ก่อนส่งต่อ",
+    "I1": "👉 Checklist สำหรับยา/น้ำ/หัตถการ",
+    "I2": "👉 เวลา + ลายมือ + ชื่อผู้ปฏิบัติ",
+    "I3": "👉 Double Check + HAD prevention",
+    "E1": "👉 Re-assess หลังให้ intervention",
+    "E2": "👉 Vital Signs ครั้งสุดท้ายครบถ้วน",
+    "E3": "👉 Discharge advice ให้ชัดเจน"
+  };
+
+  const weakItems = [];
+  ADPIE_ITEMS.forEach(sec => {
+    sec.items.forEach(item => {
+      let sum = 0, full = 0;
+      recs.forEach(rec => {
+        const v = rec.scores[item.id];
+        if (v !== "N") {
+          sum += (v === 1 ? 1 : 0);
+          full++;
+        }
+      });
+      if (full > 0 && sum / full < 0.9) {
+        weakItems.push({ id: item.id, label: item.label, pct: Math.round(sum / full * 10000) / 100, full, sum });
+      }
+    });
+  });
+
+  weakItems.sort((a, b) => a.pct - b.pct);
+
+  app.appendChild(h("div", { className: "cd" },
+    h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#d32f2f", marginBottom: "5px", borderBottom: "2px solid #ef5350", paddingBottom: "3px" } }, "🔍 ข้อที่ต้องปรับปรุง"),
+    h("div", { style: { fontSize: "10px", lineHeight: "1.8", color: "#1a237e" } },
+      weakItems.length > 0 ?
+        h("div", null,
+          ...weakItems.slice(0, 6).map((w, i) =>
+            h("div", { style: { background: "#ffebee", border: "1px solid #ef5350", borderLeft: "4px solid #d32f2f", borderRadius: "4px", padding: "5px 7px", marginBottom: "4px", fontSize: "9px" } },
+              h("span", { style: { fontWeight: "700", color: "#b71c1c" } }, (i + 1) + ". " + w.id + " (" + w.pct + "%) — " + w.sum + "/" + w.full),
+              h("br"),
+              h("span", { style: { color: "#1a237e" } }, w.label),
+              h("br"),
+              h("span", { style: { color: "#d32f2f", fontWeight: "600", fontSize: "9px" } }, improvements[w.id] || "📌 ทบทวนมาตรฐาน")
+            )
+          )
+        )
+        : h("p", { style: { color: "#16a34a", fontWeight: "600" } }, "✅ ทุกข้อมีคะแนน ≥90%")
+    )
+  ));
+
+  app.appendChild(h("div", { className: "cd" },
+    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📋 รายละเอียด (" + recs.length + " ราย)"),
     (() => {
       const t = h("table", { className: "tbl" });
       t.appendChild(h("thead", null, h("tr", null, ...[" #", "HN", "ชื่อ", "Triage", "Sum/Full", "%", "VD", ""].map(x => h("th", null, x)))));
       const tb = h("tbody");
-      S.records.forEach((r, i) => {
+      recs.forEach((r, i) => {
         const pass = (r.pct || 0) >= 90;
         tb.appendChild(h("tr", { className: pass ? "pass" : "fail" },
           h("td", null, String(i + 1)),
@@ -851,6 +871,36 @@ function rR(app) {
     h("button", { className: "btn btn-p", onClick: () => { S.tab = "form"; ren(); } }, "← กลับไปบันทึก"),
     h("button", { className: "btn btn-o", onClick: () => window.print() }, "🖨 พิมพ์รายงาน")
   ));
+
+  setTimeout(() => {
+    const ctx = document.getElementById("chartSec");
+    if (ctx) {
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: secData.map(d => d.section),
+          datasets: [{
+            label: "ร้อยละ (%)",
+            data: secData.map(d => d.pct),
+            backgroundColor: secData.map(d => d.pct >= 90 ? "#a5d6a7" : "#ef5350"),
+            borderColor: "#0d47a1",
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: "x",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + "%" } }
+          }
+        }
+      });
+    }
+  }, 100);
 }
 
 ren();
