@@ -196,7 +196,7 @@ body {
 }
 .score-btn.p1 { background: #a5d6a7; color: #1b5e20; border-color: #81c784; }
 .score-btn.p0 { background: #ef5350; color: #fff; border-color: #e53935; }
-.score-btn.pn { background: #fdd835; color: #f57f17; border-color: #fbc02d; }
+.score-btn.pN, .score-btn.pN.active { background: #fdd835 !important; color: #000 !important; border-color: #f9a825 !important; font-weight: 800; }
 
 .score-summary {
   background: linear-gradient(135deg, var(--bd-light), var(--yw-light));
@@ -408,6 +408,13 @@ const toBE = iso => {
 const TODAY = new Date().toISOString().slice(0, 10);
 
 function loadLS() {
+  // Clear all old keys on first load
+  const hasV4 = localStorage.getItem("erna_v4_init");
+  if (!hasV4) {
+    localStorage.removeItem("erna_v3");
+    localStorage.removeItem("erna_v2");
+    localStorage.setItem("erna_v4_init", "1");
+  }
   return JSON.parse(localStorage.getItem("erna_v4") || "[]");
 }
 
