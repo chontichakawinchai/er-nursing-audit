@@ -12,7 +12,6 @@
   --chart-mb: 25px;
   --table-mt: 35px;
   --print-fontsize: 10px;
-}
   --bd-dark: #0d47a1;
   --bd-light: #e3f2fd;
   --yw-dark: #f57f17;
@@ -35,7 +34,7 @@ body { font-family: Sarabun, sans-serif; background: var(--body-bg); color: #1a2
 .r label { font-weight: 700; font-size: 10px; color: #0d47a1; white-space: nowrap; }
 .r input, .r select { padding: 2px 5px; border: 1px solid #1976d2; border-radius: 3px; font-size: 10px; font-family: inherit; background: #f3f7ff; }
 .r input[type="date"] { width: 110px; }
-.cd { background: #fff; border: 1px solid #e3f2fd; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; }
+.cd { background: #fff; border: 1px solid #e3f2fd; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; clear: both; }
 .adpie-section { background: linear-gradient(135deg, #f3f7ff, #fffde7); border: 1px solid #1976d2; border-radius: 8px; padding: 8px; margin-bottom: 6px; }
 .section-head { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-weight: 800; font-size: 11px; color: var(--bd-dark); cursor: pointer; user-select: none; }
 .section-head::before { content: "▶"; display: inline-block; width: 12px; transition: transform 0.2s; }
@@ -82,16 +81,90 @@ table.tbl tr.fail td { background: #ffebee; }
 @media print {
   .tabs, .btn, .msg { display: none !important; }
   .cd:first-of-type { display: none !important; }
-  .cd:has(.weak-item) { display: none !important; }
-  body { margin: 0; padding: 0; font-size: var(--print-fontsize); }
-  #app { max-width: 100%; margin: 0; padding: 0; }
-  .hdr { margin-top: 0; margin-bottom: 4px; }
-  .cd { margin-bottom: 4px; padding: 5px; }
-  table.tbl { page-break-inside: avoid; break-inside: avoid; margin: 4px 0 !important; margin-top: var(--table-mt) !important; }
-  .chart-container { height: var(--chart-height); margin: 4px 0 var(--chart-mb) 0; }
-  .kpi-row { page-break-inside: avoid; break-inside: avoid; }
-  .weak-item { page-break-inside: avoid; break-inside: avoid; display: none !important; }
-  @page { margin: 8mm 8mm 8mm 8mm; size: A4; }
+  body { margin: 0; padding: 0; font-size: 9px; line-height: 1.1; }
+  #app { max-width: 100%; margin: 0; padding: 0; display: block; }
+  .hdr { 
+    margin: 0 0 6px 0; 
+    padding: 4px 6px; 
+    page-break-inside: avoid; 
+    break-inside: avoid;
+    font-size: 9px;
+  }
+  .hdr-title h2 { font-size: 11px; }
+  .hdr-title { padding-bottom: 2px; margin-bottom: 4px; }
+  .r { margin-bottom: 2px; }
+  .r label { font-size: 8px; }
+  .r input, .r select { font-size: 8px; padding: 1px 3px; }
+  .cd { 
+    margin-bottom: 8px; 
+    padding: 4px 5px; 
+    page-break-inside: avoid; 
+    break-inside: avoid;
+    display: block; 
+    clear: both;
+    border: 0.5px solid #ddd;
+  }
+  .score-summary { 
+    margin-bottom: 6px; 
+    padding: 4px; 
+    font-size: 8px;
+    page-break-inside: avoid;
+  }
+  .score-summary b { font-size: 11px; }
+  .rpt-title { font-size: 10px; margin-bottom: 4px; padding-bottom: 2px; }
+  .kpi-row { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 4px; 
+    margin-bottom: 6px; 
+    page-break-inside: avoid; 
+    break-inside: avoid;
+  }
+  .kpi { 
+    padding: 3px; 
+    font-size: 7px; 
+    min-width: auto;
+    flex: none;
+  }
+  .kpi .kl { font-size: 7px; margin-bottom: 1px; }
+  .kpi .kv { font-size: 12px; }
+  table.tbl { 
+    page-break-inside: avoid; 
+    break-inside: avoid; 
+    width: 100%; 
+    margin: 6px 0 !important; 
+    font-size: 8px; 
+    border-collapse: collapse;
+  }
+  table.tbl th { 
+    padding: 1px 2px; 
+    font-size: 7px; 
+    background-color: #0d47a1 !important;
+    color: #fff !important;
+  }
+  table.tbl td { 
+    padding: 1px 2px; 
+    font-size: 7px; 
+    border: 0.5px solid #999 !important;
+  }
+  table.tbl tr.pass td { background-color: #c8e6c9 !important; }
+  table.tbl tr.fail td { background-color: #ffcccc !important; }
+  .chart-container { 
+    height: 100px; 
+    margin: 6px 0 8px 0 !important; 
+    page-break-inside: avoid; 
+    page-break-after: avoid;
+    padding: 4px;
+    break-inside: avoid;
+  }
+  .chart-container canvas { max-height: 100px !important; }
+  .weak-item { display: none !important; }
+  .status-pass, .status-fail { font-size: 7px; padding: 1px 4px; }
+  .badge { font-size: 8px; padding: 2px 8px; }
+  @page { 
+    margin: 6mm 6mm 6mm 6mm; 
+    size: A4; 
+  }
 }
   </style>
 </head>
@@ -268,13 +341,6 @@ async function syncToCloud() {
 }
 
 function ren() {
-  // Update print layout CSS variables
-  const pL = S.printLayout || { chartH: 80, chartMb: 25, tableMt: 80, fontSize: 10 };
-  document.documentElement.style.setProperty('--chart-height', pL.chartH + 'px');
-  document.documentElement.style.setProperty('--chart-mb', pL.chartMb + 'px');
-  document.documentElement.style.setProperty('--table-mt', pL.tableMt + 'px');
-  document.documentElement.style.setProperty('--print-fontsize', pL.fontSize + 'px');
-  
   const app = document.getElementById("app");
   app.innerHTML = "";
   const tot = calcScore(S.scores);
@@ -294,7 +360,6 @@ function ren() {
 }
 
 function rF(app, tot) {
-  // สร้าง dropdown เลือก patient
   const uniquePatients = [];
   const seenHN = new Set();
   S.records.forEach(r => {
@@ -394,7 +459,6 @@ function rF(app, tot) {
     h("button", { className: "btn btn-s", onClick: () => { S.tab = "report"; ren(); } }, "📊 รายงาน")
   ));
 
-  // แสดงตารางรายชื่อผู้ป่วยที่บันทึกแล้วท้ายแบบประเมิน
   if (S.records.length > 0) {
     app.appendChild(h("div", { className: "cd", style: { background: "#f9f9f9", borderLeft: "3px solid #388e3c", marginTop: "8px" } },
       h("div", { style: { fontWeight: "800", fontSize: "10px", color: "#2e7d32", marginBottom: "4px" } }, "📋 รายชื่อบันทึกแล้ว (" + S.records.length + " ราย)"),
@@ -451,11 +515,6 @@ function rR(app) {
     app.appendChild(h("div", { style: { textAlign: "center", padding: "20px", color: "#aaa" } }, "ไม่มีข้อมูล"));
     return;
   }
-
-  console.log("===== DEBUG =====");
-  console.log("Total records:", recs.length);
-  console.log("Sample record:", recs[0]);
-  recs.forEach((r, i) => console.log(`Record ${i+1}: HN=${r.hn}, pct=${r.pct}, pass=${r.pct >= 90 ? "✓" : "✗"}`));
 
   const totalSum = recs.reduce((a, r) => a + (r.sum || 0), 0);
   const totalFull = recs.reduce((a, r) => a + (r.full || 0), 0);
@@ -534,7 +593,6 @@ function rR(app) {
     ));
   }
 
-  // วิเคราะห์ละเอียด: สาเหตุ + ปัญหา + วิธีแก้ (Actionable)
   const itemAnalysis = {
     "A1": { 
       cause: "ประวัติการเจ็บป่วย/อาการสำคัญบันทึกไม่ละเอียด", 
@@ -544,22 +602,22 @@ function rR(app) {
     "A2": { 
       cause: "สัญญาณชีพไม่ครบ (BT, PR, RR, BP, O₂ Sat)",
       problem: "ช่อง V/S ไม่ชัดเจน หรือมีข้อมูลหายไป",
-      solution: ["ระบบ: ทำให้ V/S เป็น mandatory 6 ตัว ก่อน Save", "ขั้นตอน: วัด V/S ทั้ง 6 ตัว ก่อนบันทึก", "Equipment: ตรวจสอบ Pulse Oximeter, Thermometer ให้พร้อมใช้"]
+      solution: ["ระบบ: ให้ V/S เป็น mandatory 6 ตัว ก่อน Save", "ขั้นตอน: วัด V/S ทั้ง 6 ตัว ก่อนบันทึก", "Equipment: ตรวจสอบ Pulse Oximeter, Thermometer ให้พร้อมใช้"]
     },
     "A3": { 
       cause: "การคัดแยก Triage Level ผิด หรือไม่ตรงกับอาการ",
       problem: "ไม่มี guideline Triage ตัวอักษร ให้พยาบาลใช้อ้างอิง",
-      solution: ["ระบบ: เพิ่ม Alert 'ตรวจสอบ Triage Level ตามอาการ' ใน EMR", "Training: สอน Triage ตามมาตรฐาน (ER Thai Triage Scale หรือ PEWS)", "Poster: ติดตาราง Triage ที่เตียง ER"]
+      solution: ["ระบบ: เพิ่ม Alert 'ตรวจสอบ Triage Level ตามอาการ' ใน EMR", "Training: สอน Triage ตามมาตรฐาน (ER Thai Triage Scale)", "Poster: ติดตาราง Triage ที่เตียง ER"]
     },
     "A4": { 
       cause: "บันทึก Pain Score ไม่ครบทุกเคส",
-      problem: "ช่อง PS ไกลจากช่อง V/S + ไม่ mandatory + ไม่มี alert",
-      solution: ["ระบบ: ย้าย PS ให้ติดกับ V/S + ทำ mandatory (CC='ปวด')", "ระบบ: เพิ่ม Alert 'บันทึก PS ก่อน Save' เมื่อเคส pain", "Checklist: V/S → PS → Triage → บันทึก (เรียงลำดับชัดเจน)"]
+      problem: "ช่อง PS ไกลจากช่อง V/S + ไม่ mandatory",
+      solution: ["ระบบ: ย้าย PS ให้ติดกับ V/S + ทำ mandatory (CC='ปวด')", "ระบบ: เพิ่ม Alert 'บันทึก PS ก่อน Save'", "Checklist: V/S → PS → Triage → บันทึก (เรียงลำดับชัดเจน)"]
     },
     "D1": { 
       cause: "วินิจฉัยพยาบาล ไม่ตรงกับ CC หรือปัญหาหลัก",
       problem: "ไม่มี template วินิจฉัย หรือ guideline เขียนวินิจฉัยที่ถูกต้อง",
-      solution: ["Training: สอน NANDA diagnosis format (PES: Problem-Etiology-Sign)", "Template: จัดทำ list 20 diagnoses ที่ใช้บ่อย ER เพื่ออ้างอิง", "Tool: สร้าง quick reference ในระบบ"]
+      solution: ["Training: สอน NANDA diagnosis format (PES: Problem-Etiology-Sign)", "Template: จัดทำ list diagnoses ที่ใช้บ่อย ER เพื่ออ้างอิง", "Tool: สร้าง quick reference ในระบบ"]
     },
     "D2": { 
       cause: "ไม่ครอบคลุมภาวะเสี่ยง (risk diagnosis)",
@@ -574,7 +632,7 @@ function rR(app) {
     "P1": { 
       cause: "Goal/ผลลัพธ์คาดหวัง ไม่ชัดเจนหรือวัดผลไม่ได้",
       problem: "ไม่มี SMART goal framework",
-      solution: ["Template: 'Goal: ผู้ป่วยจะบรรเทาปวดให้ ≤3/10 ภายใน 2 ชั่วโมง'", "Training: สอน SMART goal writing (Specific, Measurable, Achievable, Relevant, Time-bound)", "Checklist: goal template ใน EMR"]
+      solution: ["Template: 'Goal: ผู้ป่วยจะบรรเทาปวดให้ ≤3/10 ภายใน 2 ชั่วโมง'", "Training: สอน SMART goal writing", "Checklist: goal template ใน EMR"]
     },
     "P2": { 
       cause: "Intervention/กิจกรรม ไม่ตรงกับวินิจฉัย",
@@ -583,18 +641,18 @@ function rR(app) {
     },
     "P3": { 
       cause: "แผนส่งต่อ/ย้ายตึก ไม่ชัดเจน",
-      problem: "ไม่มี SOP การส่งต่อ หรือ checklist อุปกรณ์ที่ต้องเตรียม",
-      solution: ["SOP: สร้าง Transfer Protocol (checklist เอกสาร, อุปกรณ์, การส่งต่อข้อมูล)", "Checklist: ติดที่เตียง/ห้องส่งต่อ", "Training: briefing ทีมเรื่อง Safe Handoff Protocol"]
+      problem: "ไม่มี SOP การส่งต่อ หรือ checklist อุปกรณ์",
+      solution: ["SOP: สร้าง Transfer Protocol (checklist เอกสาร, อุปกรณ์, ข้อมูล)", "Checklist: ติดที่เตียง/ห้องส่งต่อ", "Training: briefing ทีมเรื่อง Safe Handoff Protocol"]
     },
     "I1": { 
       cause: "บันทึกกิจกรรม/ยาไม่ครบตามคำสั่งแพทย์",
       problem: "ไม่มี MAR (Medication Administration Record) ที่เห็นง่าย",
-      solution: ["System: ให้ Medication Order link ไป MAR ให้พยาบาลมอง", "Checklist: Each order ต้อง check ✓ บันทึกจึงจะ submit ได้", "Alert: reminder ยังมี pending medication/order"]
+      solution: ["System: ให้ Medication Order link ไป MAR ให้พยาบาลมอง", "Checklist: Each order ต้อง check ✓ บันทึกจึงจะ submit", "Alert: reminder ยังมี pending medication/order"]
     },
     "I2": { 
       cause: "บันทึกหัตถการไม่มี 'เวลา' หรือ 'ผู้ปฏิบัติ'",
       problem: "ช่อง procedure ใน EMR ไม่มี time field หรือ signature field",
-      solution: ["System: เพิ่ม mandatory fields: Procedure time + Provider name + Signature", "Template: สร้าง procedure checklist (pre-procedure, procedure, post-procedure)", "Training: ขั้นตอนการบันทึก procedure ให้ครบถ้วน"]
+      solution: ["System: เพิ่ม mandatory fields: Procedure time + Provider name + Signature", "Template: สร้าง procedure checklist", "Training: ขั้นตอนการบันทึก procedure ให้ครบถ้วน"]
     },
     "I3": { 
       cause: "ไม่มีบันทึก double check ยา/มาตรการ HAD",
@@ -614,12 +672,11 @@ function rR(app) {
     "E3": { 
       cause: "ไม่บันทึก เวลา/สถานะ จำหน่าย หรือคำแนะนำ",
       problem: "ช่อง Discharge ไม่มี template หรือ guidance",
-      solution: ["Template: Discharge template (time, status, instructions, follow-up)", "Checklist: Discharge checklist (medication, diet, activity, follow-up appt)", "Tool: สร้าง discharg instruction form ที่พิมพ์ให้ผู้ป่วยได้"]
+      solution: ["Template: Discharge template (time, status, instructions, follow-up)", "Checklist: Discharge checklist (medication, diet, activity, follow-up)", "Tool: สร้าง discharge instruction form ที่พิมพ์ให้ผู้ป่วย"]
     }
   };
 
   if (weakItems.length > 0) {
-    // สรุปตัวเลขการประเมิน
     const summaryDiv = h("div", { className: "cd", style: { background: "#f0f8ff", borderLeft: "4px solid #1976d2" } },
       h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#0d47a1", marginBottom: "6px" } }, "📊 สรุปผลการประเมิน"),
       h("div", { style: { fontSize: "10px", color: "#333", lineHeight: "1.8" } },
