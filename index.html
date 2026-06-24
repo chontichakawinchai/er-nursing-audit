@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ER Nursing Audit (ADPIE) v4 - Complete</title>
+  <title>ER Nursing Audit (ADPIE) v4</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <style>
@@ -36,7 +36,6 @@ body {
   margin: 0 auto;
   padding: 8px;
 }
-
 .tabs {
   display: flex;
   gap: 4px;
@@ -59,7 +58,6 @@ body {
   background: linear-gradient(135deg, var(--bd-dark), var(--yw-dark));
   color: #fff;
 }
-
 .hdr {
   background: linear-gradient(135deg, #f3f7ff 0%, #fffde7 100%);
   border: 1.5px solid #fbc02d;
@@ -78,7 +76,6 @@ body {
   font-weight: 800;
   color: var(--yw-dark);
 }
-
 .badge {
   display: inline-block;
   padding: 3px 12px;
@@ -90,7 +87,6 @@ body {
   border: 1px solid #1976d2;
   margin-left: 8px;
 }
-
 .r {
   display: flex;
   gap: 5px;
@@ -115,7 +111,6 @@ body {
 .r input[type="date"] {
   width: 110px;
 }
-
 .cd {
   background: #fff;
   border: 1px solid #e3f2fd;
@@ -123,7 +118,6 @@ body {
   padding: 6px 8px;
   margin-bottom: 5px;
 }
-
 .adpie-section {
   background: linear-gradient(135deg, #f3f7ff, #fffde7);
   border: 1px solid #1976d2;
@@ -158,7 +152,6 @@ body {
 .section-content.show {
   display: block;
 }
-
 .audit-item {
   display: flex;
   gap: 8px;
@@ -194,11 +187,9 @@ body {
   color: #fff;
   font-weight: 800;
 }
-.score-btn { padding: 2px 6px; border: 1px solid #1976d2; background: #e3f2fd; border-radius: 3px; cursor: pointer; font-size: 9px; font-weight: 700; min-width: 28px; text-align: center; }
 .score-btn.p1 { background: #a5d6a7 !important; color: #1b5e20 !important; border-color: #81c784 !important; }
 .score-btn.p0 { background: #ef5350 !important; color: #fff !important; border-color: #e53935 !important; }
 .score-btn.pN { background: #fdd835 !important; color: #000 !important; border-color: #f9a825 !important; font-weight: 800 !important; }
-
 .score-summary {
   background: linear-gradient(135deg, var(--bd-light), var(--yw-light));
   border: 1px solid #1976d2;
@@ -218,7 +209,6 @@ body {
   font-size: 14px;
   font-weight: 800;
 }
-
 .btn {
   padding: 5px 12px;
   border: none;
@@ -231,7 +221,7 @@ body {
 .btn-p { background: var(--bd-dark); color: #fff; }
 .btn-s { background: #388e3c; color: #fff; }
 .btn-o { background: #fff; border: 1.5px solid #1976d2; color: #0d47a1; }
-
+.btn-pull { background: linear-gradient(135deg, #4db8ff, #0066cc); color: #fff; border: none; }
 .msg {
   padding: 5px 8px;
   text-align: center;
@@ -243,7 +233,6 @@ body {
   color: #0d47a1;
   border: 1px solid #1976d2;
 }
-
 .kpi-row {
   display: flex;
   gap: 6px;
@@ -261,7 +250,6 @@ body {
 }
 .kpi .kl { font-size: 8.5px; color: #3f51b5; margin-bottom: 2px; }
 .kpi .kv { font-weight: 800; font-size: 16px; color: var(--bd-dark); }
-
 table.tbl {
   border-collapse: collapse;
   width: 100%;
@@ -283,7 +271,6 @@ table.tbl td {
 }
 table.tbl tr.pass td { background: #e8f5e9; }
 table.tbl tr.fail td { background: #ffebee; }
-
 .status-pass {
   display: inline-block;
   padding: 2px 8px;
@@ -304,7 +291,6 @@ table.tbl tr.fail td { background: #ffebee; }
   font-size: 9px;
   border: 1px solid #ef5350;
 }
-
 .del-btn {
   padding: 1px 5px;
   border: 1px solid #ef5350;
@@ -314,7 +300,6 @@ table.tbl tr.fail td { background: #ffebee; }
   font-size: 9px;
   color: #b71c1c;
 }
-
 .chart-container {
   position: relative;
   height: 250px;
@@ -324,7 +309,6 @@ table.tbl tr.fail td { background: #ffebee; }
   border: 1px solid #e3f2fd;
   border-radius: 6px;
 }
-
 .rpt-title {
   text-align: center;
   font-weight: 800;
@@ -334,7 +318,6 @@ table.tbl tr.fail td { background: #ffebee; }
   padding-bottom: 3px;
   margin-bottom: 5px;
 }
-
 @media print {
   .tabs, .btn, .del-btn, .msg, .no-print { display: none !important; }
 }
@@ -477,35 +460,51 @@ function toggleSection(id) {
   }
 }
 
+async function downloadFromCloud() {
+  S.msg = "⬇️ ดึงข้อมูลจาก Cloud...";
+  ren();
+  try {
+    const r = await fetch(GAS_URL);
+    const json = await r.json();
+    if (json.ok && json.records && json.records.length > 0) {
+      S.records = json.records;
+      sv();
+      S.msg = "✅ Pull สำเร็จ! ได้ " + json.records.length + " ราย";
+    } else {
+      S.msg = "⚠️ ไม่มีข้อมูลใน Cloud";
+    }
+  } catch (e) {
+    console.error("Pull error:", e);
+    S.msg = "⚠️ ไม่สามารถดึงข้อมูลได้: " + e.message;
+  }
+  ren();
+  setTimeout(() => { S.msg = ""; ren(); }, 3000);
+}
+
 async function syncToCloud() {
   if (!S.records.length) {
-    S.msg = "⚠️ ไม่มีข้อมูลให้ sync";
+    S.msg = "⚠️ ไม่มีข้อมูลให้ push";
     ren();
     return;
   }
-
   S.msg = "☁️ กำลังส่งไป Cloud...";
   ren();
-
   try {
     const formData = new FormData();
     formData.append("data", JSON.stringify(S.records));
-
     const r = await fetch(GAS_URL, {
       method: "POST",
       body: formData
     });
-
     if (r.ok) {
-      S.msg = "✅ Sync สำเร็จ! (" + S.records.length + " ราย)";
+      S.msg = "✅ Push สำเร็จ! (" + S.records.length + " ราย)";
     } else {
-      S.msg = "⚠️ Sync error - ข้อมูลเก็บใน Local ได้";
+      S.msg = "⚠️ Push error - ข้อมูลเก็บใน Local ได้";
     }
   } catch (e) {
-    console.error("Sync error:", e);
-    S.msg = "⚠️ ไม่สามารถ Sync ได้ - ข้อมูลเก็บใน Local";
+    console.error("Push error:", e);
+    S.msg = "⚠️ ไม่สามารถ Push ได้ - ข้อมูลเก็บใน Local";
   }
-
   ren();
   setTimeout(() => { S.msg = ""; ren(); }, 3000);
 }
@@ -513,19 +512,16 @@ async function syncToCloud() {
 function ren() {
   const app = document.getElementById("app");
   app.innerHTML = "";
-
   const tot = calcScore(S.scores);
-
   app.appendChild(h("div", { className: "tabs" },
     h("button", { className: S.tab === "form" ? "on" : "", onClick: () => { S.tab = "form"; ren(); } }, "✍️ บันทึกข้อมูล"),
     h("button", { className: S.tab === "report" ? "on" : "", onClick: () => { S.tab = "report"; ren(); } }, "📊 รายงาน (" + S.records.length + ")"),
-    h("button", { className: "btn btn-o", style: { padding: "4px 10px", fontSize: "9px" }, onClick: syncToCloud }, "☁️ Sync")
+    h("button", { className: "btn btn-pull", style: { padding: "4px 10px", fontSize: "9px" }, onClick: downloadFromCloud }, "⬇️ Pull"),
+    h("button", { className: "btn btn-o", style: { padding: "4px 10px", fontSize: "9px" }, onClick: syncToCloud }, "☁️ Push")
   ));
-
   if (S.msg) {
     app.appendChild(h("div", { className: "msg" }, S.msg));
   }
-
   if (S.tab === "form") rF(app, tot);
   else rR(app);
 }
@@ -537,12 +533,11 @@ function rF(app, tot) {
       h("button", { className: "btn btn-o", style: { padding: "1px 6px", fontSize: "9px" }, onClick: () => { S.editId = null; rst(); ren(); } }, "ยกเลิก")
     ));
   }
-
   app.appendChild(h("div", { className: "hdr" },
     h("div", { className: "hdr-title" },
       h("small", null, "แบบตรวจประเมินคุณภาพการพยาบาล ER"),
       h("h2", null, "ตรวจประเมินปฏิบัติการพยาบาลตาม ADPIE"),
-      h("span", { className: "badge" }, "พยาบาล ER | 12 ข้อ")
+      h("span", { className: "badge" }, "พยาบาล ER | 16 ข้อ")
     ),
     h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "8px" } },
       h("div", { style: { padding: "6px", background: "#f3f7ff", borderRadius: "4px", border: "1px solid #1976d2" } },
@@ -581,42 +576,34 @@ function rF(app, tot) {
       )
     )
   ));
-
   app.appendChild(h("div", { className: "score-summary" },
     h("div", null, "Full Items: ", h("b", { style: { color: "#0d47a1" } }, String(tot.full))),
     h("div", null, "Sum Score: ", h("b", { style: { color: "#1976d2" } }, String(tot.sum))),
     h("div", null, "% ", h("b", { style: { color: tot.pct >= 90 ? "#16a34a" : "#d32f2f", fontSize: "16px" } }, String(tot.pct))),
     h("div", { style: { marginLeft: "auto", fontSize: "9px", color: "#666" } }, "🎯 เป้าหมาย: >90%")
   ));
-
   ADPIE_ITEMS.forEach(sec => {
     const secDiv = h("div", { className: "adpie-section" });
     const secHead = h("div", { className: "section-head open", id: "section-" + sec.section, onClick: () => toggleSection(sec.section) });
     secHead.appendChild(h("span", null, sec.icon + " " + sec.label + " (" + sec.items.length + ")"));
     secDiv.appendChild(secHead);
-
     const secContent = h("div", { className: "section-content show", id: "content-" + sec.section });
     sec.items.forEach(item => {
       const itemDiv = h("div", { className: "audit-item" });
       itemDiv.appendChild(h("div", { className: "audit-item-label" }, item.label));
-
       const btnGroup = h("div", { className: "audit-buttons" });
       const v = S.scores[item.id];
-
       [1, 0, "N"].forEach(val => {
         const btn = h("button", { className: "score-btn" + (v === val ? " p" + val + " active" : "") }, val === 1 ? "✓" : val === 0 ? "✗" : "N/A");
         btn.addEventListener("click", () => { S.scores[item.id] = val; ren(); });
         btnGroup.appendChild(btn);
       });
-
       itemDiv.appendChild(btnGroup);
       secContent.appendChild(itemDiv);
     });
-
     secDiv.appendChild(secContent);
     app.appendChild(secDiv);
   });
-
   app.appendChild(h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", margin: "6px 0" } },
     h("button", { className: "btn btn-p", onClick: () => {
       if (!S.i.hn) { S.msg = "⚠️ กรุณาใส่ HN"; ren(); return; }
@@ -644,7 +631,6 @@ function rF(app, tot) {
     h("button", { className: "btn btn-s", onClick: () => { rst(); ren(); } }, "📝 เพิ่มเคสต่อไป"),
     h("button", { className: "btn btn-o", onClick: () => { S.tab = "report"; ren(); } }, "📊 ดูรายงาน")
   ));
-
   if (S.records.length) {
     const t = h("table", { className: "tbl" });
     t.appendChild(h("thead", null, h("tr", null, ...["#", "HN", "ชื่อ", "Triage", "Sum/Full", "%", "VD", ""].map(x => h("th", null, x)))));
@@ -705,7 +691,6 @@ function rR(app) {
       h("button", { className: "btn btn-o", style: { padding: "2px 8px", fontSize: "10px" }, onClick: () => { S.rptFrom = ""; S.rptTo = ""; ren(); } }, "ล้าง")
     )
   ));
-
   let recs = S.records;
   if (S.rptFrom || S.rptTo) {
     recs = recs.filter(r => {
@@ -715,18 +700,15 @@ function rR(app) {
       return true;
     });
   }
-
   if (!recs.length) {
     app.appendChild(h("div", { style: { textAlign: "center", padding: "20px", color: "#aaa" } }, "ไม่มีข้อมูล"));
     return;
   }
-
   const totalSum = recs.reduce((a, r) => a + (r.sum || 0), 0);
   const totalFull = recs.reduce((a, r) => a + (r.full || 0), 0);
   const avgPct = recs.length ? (recs.reduce((a, r) => a + (r.pct || 0), 0) / recs.length).toFixed(1) : 0;
   const passN = recs.filter(r => (r.pct || 0) >= 90).length;
   const failN = recs.length - passN;
-
   app.appendChild(h("div", { className: "cd" },
     h("div", { className: "rpt-title" }, "📊 สรุปผลการตรวจประเมิน"),
     h("div", { className: "kpi-row" },
@@ -738,7 +720,6 @@ function rR(app) {
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "⚠️ ต้องปรับปรุง"), h("div", { className: "kv", style: { color: failN ? "#d32f2f" : "#90a4ae" } }, failN + " ราย"))
     )
   ));
-
   const secData = [];
   ADPIE_ITEMS.forEach(sec => {
     let sum = 0, full = 0;
@@ -759,7 +740,6 @@ function rR(app) {
       pct: full ? Math.round(sum / full * 10000) / 100 : 0
     });
   });
-
   app.appendChild(h("div", { className: "cd" },
     h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "5px" } }, "📈 คะแนนรายหมวด ADPIE"),
     h("div", { className: "chart-container" }, h("canvas", { id: "chartSec" })),
@@ -782,26 +762,13 @@ function rR(app) {
       return t;
     })()
   ));
-
   const improvements = {
-    "A1": "👉 ใส่ CC + เหตุการณ์ + ระยะเวลา",
-    "A2": "👉 Vital Signs ครบทั้ง 5 ตัว (BT/PR/RR/BP/O₂)",
-    "A3": "👉 ตรวจสอบ Triage Level ก่อน Discharge",
-    "A4": "👉 บันทึก Pain Score แต่ละ Shift",
-    "D1": "👉 ตรวจสอบ Nursing Dx ตรงกับ CC",
-    "D2": "👉 เพิ่ม Risk Diagnosis เกี่ยวกับความปลอดภัย",
-    "D3": "👉 ใช้ NANDA-I อย่างถูกต้อง ไม่ใช่ Medical Dx",
-    "P1": "👉 Goal ต้อง SMART และวัดผลได้",
-    "P2": "👉 Intervention ต้องเจาะจง (Specific)",
-    "P3": "👉 ตรวจสอบ Physician Order ก่อนส่งต่อ",
-    "I1": "👉 Checklist สำหรับยา/น้ำ/หัตถการ",
-    "I2": "👉 เวลา + ลายมือ + ชื่อผู้ปฏิบัติ",
-    "I3": "👉 Double Check + HAD prevention",
-    "E1": "👉 Re-assess หลังให้ intervention",
-    "E2": "👉 Vital Signs ครั้งสุดท้ายครบถ้วน",
-    "E3": "👉 Discharge advice ให้ชัดเจน"
+    "A1": "👉 ใส่ CC + เหตุการณ์ + ระยะเวลา", "A2": "👉 Vital Signs ครบทั้ง 5 ตัว (BT/PR/RR/BP/O₂)", "A3": "👉 ตรวจสอบ Triage Level ก่อน Discharge", "A4": "👉 บันทึก Pain Score แต่ละ Shift",
+    "D1": "👉 ตรวจสอบ Nursing Dx ตรงกับ CC", "D2": "👉 เพิ่ม Risk Diagnosis เกี่ยวกับความปลอดภัย", "D3": "👉 ใช้ NANDA-I อย่างถูกต้อง ไม่ใช่ Medical Dx",
+    "P1": "👉 Goal ต้อง SMART และวัดผลได้", "P2": "👉 Intervention ต้องเจาะจง (Specific)", "P3": "👉 ตรวจสอบ Physician Order ก่อนส่งต่อ",
+    "I1": "👉 Checklist สำหรับยา/น้ำ/หัตถการ", "I2": "👉 เวลา + ลายมือ + ชื่อผู้ปฏิบัติ", "I3": "👉 Double Check + HAD prevention",
+    "E1": "👉 Re-assess หลังให้ intervention", "E2": "👉 Vital Signs ครั้งสุดท้ายครบถ้วน", "E3": "👉 Discharge advice ให้ชัดเจน"
   };
-
   const weakItems = [];
   ADPIE_ITEMS.forEach(sec => {
     sec.items.forEach(item => {
@@ -818,9 +785,7 @@ function rR(app) {
       }
     });
   });
-
   weakItems.sort((a, b) => a.pct - b.pct);
-
   app.appendChild(h("div", { className: "cd" },
     h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#d32f2f", marginBottom: "5px", borderBottom: "2px solid #ef5350", paddingBottom: "3px" } }, "🔍 ข้อที่ต้องปรับปรุง"),
     h("div", { style: { fontSize: "10px", lineHeight: "1.8", color: "#1a237e" } },
@@ -839,7 +804,6 @@ function rR(app) {
         : h("p", { style: { color: "#16a34a", fontWeight: "600" } }, "✅ ทุกข้อมีคะแนน ≥90%")
     )
   ));
-
   app.appendChild(h("div", { className: "cd" },
     h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📋 รายละเอียด (" + recs.length + " ราย)"),
     (() => {
@@ -867,12 +831,10 @@ function rR(app) {
       return t;
     })()
   ));
-
   app.appendChild(h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", margin: "8px 0 20px" } },
     h("button", { className: "btn btn-p", onClick: () => { S.tab = "form"; ren(); } }, "← กลับไปบันทึก"),
     h("button", { className: "btn btn-o", onClick: () => window.print() }, "🖨 พิมพ์รายงาน")
   ));
-
   setTimeout(() => {
     const ctx = document.getElementById("chartSec");
     if (ctx) {
