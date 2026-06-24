@@ -8,6 +8,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <style>
 :root {
+  --chart-height: 80px;
+  --chart-mb: 25px;
+  --table-mt: 35px;
+  --print-fontsize: 10px;
+}
   --bd-dark: #0d47a1;
   --bd-light: #e3f2fd;
   --yw-dark: #f57f17;
@@ -76,15 +81,17 @@ table.tbl tr.fail td { background: #ffebee; }
 .color-box input[type="color"] { width: 100%; height: 32px; cursor: pointer; border: none; border-radius: 3px; }
 @media print {
   .tabs, .btn, .msg { display: none !important; }
-  body { margin: 0; padding: 0; font-size: 10px; }
+  .cd:first-of-type { display: none !important; }
+  .cd:has(.weak-item) { display: none !important; }
+  body { margin: 0; padding: 0; font-size: var(--print-fontsize); }
   #app { max-width: 100%; margin: 0; padding: 0; }
-  .cd { page-break-inside: avoid; break-inside: avoid; margin-bottom: 12px; padding: 8px; }
-  table.tbl { page-break-inside: avoid; break-inside: avoid; margin: 8px 0; }
-  .chart-container { page-break-inside: avoid; break-inside: avoid; height: 220px; margin: 10px 0; }
-  .hdr { page-break-after: avoid; break-after: avoid; margin-bottom: 8px; }
+  .hdr { margin-top: 0; margin-bottom: 4px; }
+  .cd { margin-bottom: 4px; padding: 5px; }
+  table.tbl { page-break-inside: avoid; break-inside: avoid; margin: 4px 0 !important; margin-top: var(--table-mt) !important; }
+  .chart-container { height: var(--chart-height); margin: 4px 0 var(--chart-mb) 0; }
   .kpi-row { page-break-inside: avoid; break-inside: avoid; }
-  .weak-item { page-break-inside: avoid; break-inside: avoid; }
-  @page { margin: 12mm 12mm 12mm 12mm; size: A4; }
+  .weak-item { page-break-inside: avoid; break-inside: avoid; display: none !important; }
+  @page { margin: 8mm 8mm 8mm 8mm; size: A4; }
 }
   </style>
 </head>
@@ -152,6 +159,10 @@ function loadColors() {
   return JSON.parse(localStorage.getItem("erna_colors") || JSON.stringify(DEFAULT_COLORS));
 }
 
+function loadPrintLayout() {
+  return JSON.parse(localStorage.getItem("erna_printLayout") || JSON.stringify({ chartH: 80, chartMb: 25, tableMt: 80, fontSize: 10 }));
+}
+
 let COLORS = loadColors();
 
 let S = {
@@ -162,7 +173,8 @@ let S = {
   editId: null,
   msg: "",
   rptFrom: "",
-  rptTo: ""
+  rptTo: "",
+  printLayout: loadPrintLayout()
 };
 
 function calcScore(sc) {
@@ -182,6 +194,7 @@ function calcScore(sc) {
 const sv = () => {
   console.log("💾 Saving to localStorage...", S.records.length, "records");
   localStorage.setItem("erna_v5", JSON.stringify(S.records));
+  localStorage.setItem("erna_printLayout", JSON.stringify(S.printLayout || { chartH: 80, chartMb: 25, tableMt: 80, fontSize: 10 }));
   console.log("✅ Saved!");
 };
 
@@ -255,6 +268,13 @@ async function syncToCloud() {
 }
 
 function ren() {
+  // Update print layout CSS variables
+  const pL = S.printLayout || { chartH: 80, chartMb: 25, tableMt: 80, fontSize: 10 };
+  document.documentElement.style.setProperty('--chart-height', pL.chartH + 'px');
+  document.documentElement.style.setProperty('--chart-mb', pL.chartMb + 'px');
+  document.documentElement.style.setProperty('--table-mt', pL.tableMt + 'px');
+  document.documentElement.style.setProperty('--print-fontsize', pL.fontSize + 'px');
+  
   const app = document.getElementById("app");
   app.innerHTML = "";
   const tot = calcScore(S.scores);
@@ -263,8 +283,7 @@ function ren() {
     h("button", { className: S.tab === "form" ? "on" : "", onClick: () => { S.tab = "form"; ren(); } }, "✍️ บันทึก"),
     h("button", { className: S.tab === "report" ? "on" : "", onClick: () => { S.tab = "report"; ren(); } }, "📊 รายงาน"),
     h("button", { className: S.tab === "settings" ? "on" : "", onClick: () => { S.tab = "settings"; ren(); } }, "🎨 สี"),
-    h("button", { className: "btn btn-pull", style: { padding: "4px 10px", fontSize: "9px" }, onClick: downloadFromCloud }, "⬇️ Pull"),
-    h("button", { className: "btn btn-o", style: { padding: "4px 10px", fontSize: "9px" }, onClick: syncToCloud }, "☁️ Push")
+    h("button", { className: "btn btn-pull", style: { padding: "4px 10px", fontSize: "9px" }, onClick: downloadFromCloud }, "⬇️ Pull")
   ));
 
   if (S.msg) app.appendChild(h("div", { className: "msg" }, S.msg));
@@ -275,6 +294,45 @@ function ren() {
 }
 
 function rF(app, tot) {
+  // สร้าง dropdown เลือก patient
+  const uniquePatients = [];
+  const seenHN = new Set();
+  S.records.forEach(r => {
+    if (!seenHN.has(r.hn)) {
+      seenHN.add(r.hn);
+      uniquePatients.push(r);
+    }
+  });
+  uniquePatients.sort((a, b) => (b.visitDate || "").localeCompare(a.visitDate || ""));
+
+  app.appendChild(h("div", { className: "cd", style: { background: "#f0f7ff", borderLeft: "3px solid #0d47a1", marginBottom: "6px" } },
+    h("div", { className: "r" },
+      h("label", null, "📋 เลือกผู้ป่วย:"),
+      h("select", {
+        style: { flex: 1 },
+        value: S.editId || "",
+        onChange: e => {
+          if (!e.target.value) {
+            S.editId = null;
+            S.i = { hcode: "11156", hn: "", hname: "", triageLevel: "Level 3", nurseName: "", visitDate: TODAY };
+            S.scores = {};
+          } else {
+            const rec = S.records.find(r => r.id === +e.target.value);
+            if (rec) {
+              S.editId = rec.id;
+              S.i = { hcode: rec.hcode, hn: rec.hn, hname: rec.hname, triageLevel: rec.triageLevel, nurseName: rec.nurseName, visitDate: rec.visitDate };
+              S.scores = { ...rec.scores };
+            }
+          }
+          ren();
+        }
+      },
+        h("option", { value: "" }, "─ เพิ่มใหม่ ─"),
+        uniquePatients.map(p => h("option", { value: p.id }, p.hn + " | " + p.hname + " | " + toBE(p.visitDate)))
+      )
+    )
+  ));
+
   app.appendChild(h("div", { className: "hdr" },
     h("div", { className: "hdr-title" },
       h("h2", null, "ตรวจประเมินปฏิบัติการพยาบาลตาม ADPIE"),
@@ -290,7 +348,7 @@ function rF(app, tot) {
   app.appendChild(h("div", { className: "score-summary" },
     h("div", null, "Full: ", h("b", null, tot.full)),
     h("div", null, "Sum: ", h("b", null, tot.sum)),
-    h("div", null, "% ", h("b", { style: { color: tot.pct >= 90 ? "#4CAF50" : "#FF6B6B" } }, tot.pct))
+    h("div", null, "% ", h("b", { style: { color: tot.pct >= 80 ? "#4CAF50" : "#FF6B6B" } }, tot.pct))
   ));
 
   ADPIE_ITEMS.forEach(sec => {
@@ -335,17 +393,47 @@ function rF(app, tot) {
     } }, "💾 บันทึก"),
     h("button", { className: "btn btn-s", onClick: () => { S.tab = "report"; ren(); } }, "📊 รายงาน")
   ));
+
+  // แสดงตารางรายชื่อผู้ป่วยที่บันทึกแล้วท้ายแบบประเมิน
+  if (S.records.length > 0) {
+    app.appendChild(h("div", { className: "cd", style: { background: "#f9f9f9", borderLeft: "3px solid #388e3c", marginTop: "8px" } },
+      h("div", { style: { fontWeight: "800", fontSize: "10px", color: "#2e7d32", marginBottom: "4px" } }, "📋 รายชื่อบันทึกแล้ว (" + S.records.length + " ราย)"),
+      h("table", { className: "tbl", style: { fontSize: "9px" } },
+        h("tr", null, 
+          h("th", null, "HN"), 
+          h("th", null, "ชื่อ-สกุล"), 
+          h("th", null, "Triage"),
+          h("th", null, "วันที่"),
+          h("th", null, "%"),
+          h("th", null, "สถานะ")
+        ),
+        S.records.map(r => h("tr", { className: (r.pct || 0) >= 80 ? "pass" : "fail" },
+          h("td", null, r.hn || "—"),
+          h("td", { style: { textAlign: "left", paddingLeft: "4px" } }, r.hname || "—"),
+          h("td", null, r.triageLevel || "—"),
+          h("td", null, toBE(r.visitDate) || "—"),
+          h("td", null, h("b", null, (r.pct || 0) + "%")),
+          h("td", null, h("span", { className: (r.pct || 0) >= 80 ? "status-pass" : "status-fail" }, (r.pct || 0) >= 80 ? "✅" : "❌"))
+        ))
+      )
+    ));
+  }
 }
 
 function rR(app) {
-  app.appendChild(h("div", { className: "cd" },
-    h("div", { style: { fontWeight: "800", fontSize: "11px", color: "var(--bd-dark)", marginBottom: "4px" } }, "📅 กรองข้อมูล"),
-    h("div", { className: "r" },
-      h("label", null, "ตั้งแต่:"),
-      h("input", { type: "date", value: S.rptFrom, onChange: e => { S.rptFrom = e.target.value; ren(); } }),
-      h("label", null, "ถึง:"),
-      h("input", { type: "date", value: S.rptTo, onChange: e => { S.rptTo = e.target.value; ren(); } }),
-      h("button", { className: "btn btn-o", style: { padding: "2px 8px", fontSize: "10px" }, onClick: () => { S.rptFrom = ""; S.rptTo = ""; ren(); } }, "ล้าง")
+  app.appendChild(h("div", { className: "hdr" },
+    h("div", { className: "hdr-title" },
+      h("h2", null, "ประเมินเวชระเบียน ADPIE"),
+      h("div", { style: { fontSize: "11px", color: "#0d47a1", marginTop: "4px" } }, "งานอุบัติเหตุฉุกเฉิน รพ.ห้างฉัตร")
+    )
+  ));
+
+  app.appendChild(h("div", { className: "cd", style: { fontSize: "9px", padding: "4px 6px" } },
+    h("div", { className: "r", style: { marginBottom: "2px" } },
+      h("input", { type: "date", value: S.rptFrom, onChange: e => { S.rptFrom = e.target.value; ren(); }, placeholder: "ตั้งแต่วันที่", style: { width: "90px" } }),
+      h("span", null, " - "),
+      h("input", { type: "date", value: S.rptTo, onChange: e => { S.rptTo = e.target.value; ren(); }, placeholder: "ถึงวันที่", style: { width: "90px" } }),
+      h("button", { className: "btn btn-o", style: { padding: "2px 6px", fontSize: "9px", marginLeft: "4px" }, onClick: () => { S.rptFrom = ""; S.rptTo = ""; ren(); } }, "ล้าง")
     )
   ));
 
@@ -372,7 +460,7 @@ function rR(app) {
   const totalSum = recs.reduce((a, r) => a + (r.sum || 0), 0);
   const totalFull = recs.reduce((a, r) => a + (r.full || 0), 0);
   const avgPct = recs.length ? (recs.reduce((a, r) => a + (r.pct || 0), 0) / recs.length).toFixed(1) : 0;
-  const passN = recs.filter(r => (r.pct || 0) >= 90).length;
+  const passN = recs.filter(r => (r.pct || 0) >= 80).length;
   const failN = recs.length - passN;
 
   app.appendChild(h("div", { className: "cd" },
@@ -381,7 +469,7 @@ function rR(app) {
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "รวม"), h("div", { className: "kv" }, recs.length + " ราย")),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "Full"), h("div", { className: "kv" }, totalFull)),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "Sum"), h("div", { className: "kv" }, totalSum)),
-      h("div", { className: "kpi" }, h("div", { className: "kl" }, "% เฉลี่ย"), h("div", { className: "kv", style: { color: +avgPct >= 90 ? "#16a34a" : "#d32f2f" } }, avgPct + "%")),
+      h("div", { className: "kpi" }, h("div", { className: "kl" }, "% เฉลี่ย"), h("div", { className: "kv", style: { color: +avgPct >= 80 ? "#16a34a" : "#d32f2f" } }, avgPct + "%")),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "✅ ผ่าน"), h("div", { className: "kv", style: { color: "#16a34a" } }, passN + " ราย")),
       h("div", { className: "kpi" }, h("div", { className: "kl" }, "❌ ต้องปรับ"), h("div", { className: "kv", style: { color: failN > 0 ? "#d32f2f" : "#90a4ae" } }, failN + " ราย"))
     )
@@ -407,12 +495,12 @@ function rR(app) {
     h("div", { className: "chart-container" }, h("canvas", { id: "chartSec" })),
     h("table", { className: "tbl" },
       h("tr", null, h("th", null, "Section"), h("th", null, "Full"), h("th", null, "Sum"), h("th", null, "%"), h("th", null, "Status")),
-      secData.map(d => h("tr", { className: d.pct >= 90 ? "pass" : "fail" },
+      secData.map(d => h("tr", { className: d.pct >= 80 ? "pass" : "fail" },
         h("td", null, h("b", null, d.section)),
         h("td", null, d.full),
         h("td", null, d.sum),
         h("td", null, h("b", null, d.pct + "%")),
-        h("td", null, h("span", { className: d.pct >= 90 ? "status-pass" : "status-fail" }, d.pct >= 90 ? "✅ ผ่าน" : "❌ ต้องปรับ"))
+        h("td", null, h("span", { className: d.pct >= 80 ? "status-pass" : "status-fail" }, d.pct >= 80 ? "✅ ผ่าน" : "❌ ต้องปรับ"))
       ))
     )
   ));
@@ -428,7 +516,7 @@ function rR(app) {
           full++;
         }
       });
-      if (full > 0 && sum / full < 0.9) {
+      if (full > 0 && sum / full < 0.8) {
         weakItems.push({ id: item.id, label: item.label, pct: Math.round(sum / full * 10000) / 100, sum, full });
       }
     });
@@ -531,8 +619,19 @@ function rR(app) {
   };
 
   if (weakItems.length > 0) {
+    // สรุปตัวเลขการประเมิน
+    const summaryDiv = h("div", { className: "cd", style: { background: "#f0f8ff", borderLeft: "4px solid #1976d2" } },
+      h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#0d47a1", marginBottom: "6px" } }, "📊 สรุปผลการประเมิน"),
+      h("div", { style: { fontSize: "10px", color: "#333", lineHeight: "1.8" } },
+        h("div", null, "• ประเมินเวชระเบียนทั้งสิ้น ", h("b", { style: { color: "#d32f2f" } }, recs.length + " ราย")),
+        h("div", null, "• ผ่านเกณฑ์ ≥80% จำนวน ", h("b", { style: { color: "#16a34a" } }, passN + " ราย"), " คิดเป็น ", h("b", { style: { color: "#16a34a" } }, (passN > 0 ? ((passN / recs.length) * 100).toFixed(1) : 0) + "%")),
+        h("div", null, "• ไม่ผ่านเกณฑ์ <80% จำนวน ", h("b", { style: { color: "#d32f2f" } }, failN + " ราย"), " คิดเป็น ", h("b", { style: { color: "#d32f2f" } }, (failN > 0 ? ((failN / recs.length) * 100).toFixed(1) : 0) + "%"))
+      )
+    );
+    app.appendChild(summaryDiv);
+
     const analysisDiv = h("div", { className: "cd", style: { background: "#fff9e6", borderLeft: "4px solid #f57f17" } },
-      h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#f57f17", marginBottom: "6px" } }, "💡 วิเคราะห์และแนวทางพัฒนา")
+      h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#f57f17", marginBottom: "6px" } }, "🔍 ส่วนที่ไม่ผ่านเกณฑ์และแนวทางแก้ไข")
     );
     
     weakItems.forEach(w => {
@@ -550,7 +649,7 @@ function rR(app) {
     app.appendChild(analysisDiv);
   } else {
     app.appendChild(h("div", { className: "cd", style: { background: "#e8f5e9", borderLeft: "4px solid #4CAF50" } },
-      h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#2e7d32" } }, "🎉 สรุป: ทั้ง " + recs.length + " ราย ผ่านเกณฑ์ทั้งหมด! ยอดเยี่ยม")
+      h("div", { style: { fontWeight: "800", fontSize: "12px", color: "#2e7d32" } }, "🎉 สรุป: ทั้ง " + recs.length + " ราย ผ่านเกณฑ์ ≥80% ทั้งหมด! ยอดเยี่ยม")
     ));
   }
 
@@ -570,7 +669,7 @@ function rR(app) {
             label: "ร้อยละ",
             data: secData.map(d => d.pct),
             backgroundColor: secData.map(d => {
-              const key = d.section + "_" + (d.pct >= 90 ? "pass" : "fail");
+              const key = d.section + "_" + (d.pct >= 80 ? "pass" : "fail");
               return COLORS[key];
             }),
             borderColor: "#0d47a1",
@@ -589,6 +688,8 @@ function rR(app) {
 }
 
 function rS(app) {
+  const pL = S.printLayout || { chartH: 80, chartMb: 25, tableMt: 80, fontSize: 10 };
+  
   app.appendChild(h("div", { className: "cd" },
     h("div", { style: { fontWeight: "800", fontSize: "12px", color: "var(--bd-dark)", marginBottom: "8px" } }, "🎨 ตั้งค่าสีกราฟ"),
     h("div", { className: "color-grid" },
@@ -603,8 +704,33 @@ function rS(app) {
         )
       ])
     ),
-    h("div", { style: { display: "flex", gap: "4px", justifyContent: "center" } },
-      h("button", { className: "btn btn-o", onClick: () => { COLORS = JSON.parse(JSON.stringify(DEFAULT_COLORS)); svColors(); ren(); } }, "🔄 รีเซ็ต")
+    h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", marginBottom: "12px" } },
+      h("button", { className: "btn btn-o", onClick: () => { COLORS = JSON.parse(JSON.stringify(DEFAULT_COLORS)); svColors(); ren(); } }, "🔄 รีเซ็ตสี")
+    )
+  ));
+  
+  app.appendChild(h("div", { className: "cd" },
+    h("div", { style: { fontWeight: "800", fontSize: "12px", color: "var(--bd-dark)", marginBottom: "8px" } }, "📄 ตั้งค่าพิมพ์"),
+    h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" } },
+      h("div", null,
+        h("label", { style: { fontSize: "10px", color: "#0d47a1", fontWeight: "700", display: "block", marginBottom: "3px" } }, "ความสูงกราฟ (px)"),
+        h("input", { type: "number", value: pL.chartH, min: 60, max: 200, step: 10, style: { width: "100%", padding: "4px", fontSize: "10px" }, onChange: e => { pL.chartH = parseInt(e.target.value); S.printLayout = pL; sv(); } })
+      ),
+      h("div", null,
+        h("label", { style: { fontSize: "10px", color: "#0d47a1", fontWeight: "700", display: "block", marginBottom: "3px" } }, "ช่องว่างกราฟ (px)"),
+        h("input", { type: "number", value: pL.chartMb, min: 10, max: 100, step: 5, style: { width: "100%", padding: "4px", fontSize: "10px" }, onChange: e => { pL.chartMb = parseInt(e.target.value); S.printLayout = pL; sv(); } })
+      ),
+      h("div", null,
+        h("label", { style: { fontSize: "10px", color: "#0d47a1", fontWeight: "700", display: "block", marginBottom: "3px" } }, "ช่องว่างตาราง (px)"),
+        h("input", { type: "number", value: pL.tableMt, min: 20, max: 80, step: 5, style: { width: "100%", padding: "4px", fontSize: "10px" }, onChange: e => { pL.tableMt = parseInt(e.target.value); S.printLayout = pL; sv(); } })
+      ),
+      h("div", null,
+        h("label", { style: { fontSize: "10px", color: "#0d47a1", fontWeight: "700", display: "block", marginBottom: "3px" } }, "ขนาดตัวอักษร (px)"),
+        h("input", { type: "number", value: pL.fontSize, min: 8, max: 14, step: 1, style: { width: "100%", padding: "4px", fontSize: "10px" }, onChange: e => { pL.fontSize = parseInt(e.target.value); S.printLayout = pL; sv(); } })
+      )
+    ),
+    h("div", { style: { display: "flex", gap: "4px", justifyContent: "center", marginTop: "8px" } },
+      h("button", { className: "btn btn-o", onClick: () => { S.printLayout = { chartH: 80, chartMb: 25, tableMt: 80, fontSize: 10 }; sv(); ren(); } }, "🔄 รีเซ็ตพิมพ์")
     )
   ));
 }
