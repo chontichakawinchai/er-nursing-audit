@@ -81,89 +81,102 @@ table.tbl tr.fail td { background: #ffebee; }
 @media print {
   .tabs, .btn, .msg { display: none !important; }
   .cd:first-of-type { display: none !important; }
-  body { margin: 0; padding: 0; font-size: 9px; line-height: 1.1; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  body { margin: 0; padding: 0; font-size: 10px; line-height: 1.3; color: #000; background: #fff; }
   #app { max-width: 100%; margin: 0; padding: 0; display: block; }
   .hdr { 
-    margin: 0 0 6px 0; 
-    padding: 4px 6px; 
+    margin: 0 0 8px 0; 
+    padding: 6px 8px; 
     page-break-inside: avoid; 
     break-inside: avoid;
-    font-size: 9px;
+    font-size: 10px;
+    border: 2px solid #000;
   }
-  .hdr-title h2 { font-size: 11px; }
-  .hdr-title { padding-bottom: 2px; margin-bottom: 4px; }
-  .r { margin-bottom: 2px; }
-  .r label { font-size: 8px; }
-  .r input, .r select { font-size: 8px; padding: 1px 3px; }
+  .hdr-title h2 { font-size: 13px; font-weight: 800; }
+  .hdr-title { padding-bottom: 3px; margin-bottom: 6px; border-bottom: 2px solid #000; }
+  .r { margin-bottom: 3px; }
+  .r label { font-size: 9px; font-weight: 700; }
+  .r input, .r select { font-size: 9px; padding: 2px 4px; }
   .cd { 
-    margin-bottom: 8px; 
-    padding: 4px 5px; 
+    margin-bottom: 10px; 
+    padding: 6px 8px; 
     page-break-inside: avoid; 
     break-inside: avoid;
     display: block; 
     clear: both;
-    border: 0.5px solid #ddd;
+    border: 1px solid #000;
+    background: #fff;
   }
   .score-summary { 
-    margin-bottom: 6px; 
-    padding: 4px; 
-    font-size: 8px;
+    margin-bottom: 8px; 
+    padding: 6px; 
+    font-size: 9px;
     page-break-inside: avoid;
+    background: #f5f5f5;
+    border: 1px solid #000;
   }
-  .score-summary b { font-size: 11px; }
-  .rpt-title { font-size: 10px; margin-bottom: 4px; padding-bottom: 2px; }
+  .score-summary b { font-size: 12px; font-weight: 800; }
+  .score-summary > div { margin-bottom: 2px; }
+  .rpt-title { font-size: 12px; margin-bottom: 6px; padding-bottom: 3px; border-bottom: 2px solid #000; font-weight: 800; }
   .kpi-row { 
     display: grid; 
     grid-template-columns: repeat(2, 1fr); 
-    gap: 4px; 
-    margin-bottom: 8px; 
+    gap: 6px; 
+    margin-bottom: 10px; 
     page-break-inside: avoid; 
     break-inside: avoid;
   }
   .kpi { 
-    padding: 4px; 
-    font-size: 7px; 
+    padding: 6px; 
+    font-size: 9px; 
     min-width: auto;
     flex: none;
     break-inside: avoid;
+    border: 1px solid #000;
+    background: #fff;
   }
-  .kpi .kl { font-size: 7px; margin-bottom: 2px; }
-  .kpi .kv { font-size: 13px; }
+  .kpi .kl { font-size: 8px; margin-bottom: 3px; font-weight: 700; }
+  .kpi .kv { font-size: 14px; font-weight: 800; }
   table.tbl { 
     page-break-inside: avoid; 
     break-inside: avoid; 
     width: 100%; 
-    margin: 6px 0 !important; 
-    font-size: 8px; 
+    margin: 8px 0 !important; 
+    font-size: 9px; 
     border-collapse: collapse;
   }
   table.tbl th { 
-    padding: 1px 2px; 
-    font-size: 7px; 
+    padding: 3px 4px; 
+    font-size: 8px; 
     background-color: #0d47a1 !important;
     color: #fff !important;
+    border: 1px solid #000 !important;
+    font-weight: 700;
   }
   table.tbl td { 
-    padding: 1px 2px; 
-    font-size: 7px; 
-    border: 0.5px solid #999 !important;
+    padding: 3px 4px; 
+    font-size: 9px; 
+    border: 1px solid #000 !important;
   }
   table.tbl tr.pass td { background-color: #c8e6c9 !important; }
   table.tbl tr.fail td { background-color: #ffcccc !important; }
   .chart-container { 
-    height: 120px; 
-    margin: 4px 0 10px 0 !important; 
+    height: 140px; 
+    margin: 8px 0 12px 0 !important; 
     page-break-inside: avoid; 
     page-break-after: avoid;
-    padding: 3px;
+    padding: 6px;
     break-inside: avoid;
+    border: 1px solid #000;
+    background: #fff;
   }
-  .chart-container canvas { max-height: 120px !important; }
+  .chart-container canvas { max-height: 140px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .weak-item { display: none !important; }
-  .status-pass, .status-fail { font-size: 7px; padding: 1px 4px; }
-  .badge { font-size: 8px; padding: 2px 8px; }
+  .status-pass { font-size: 8px; padding: 2px 6px; background-color: #c8e6c9 !important; color: #1b5e20 !important; border: 1px solid #000 !important; font-weight: 700; }
+  .status-fail { font-size: 8px; padding: 2px 6px; background-color: #ffcccc !important; color: #b71c1c !important; border: 1px solid #000 !important; font-weight: 700; }
+  .badge { font-size: 9px; padding: 3px 8px; }
   @page { 
-    margin: 8mm 8mm 8mm 8mm; 
+    margin: 10mm; 
     size: A4; 
   }
 }
