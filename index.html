@@ -65,7 +65,7 @@ table.tbl tr.pass td { background: #e8f5e9; }
 table.tbl tr.fail td { background: #ffebee; }
 .status-pass { display: inline-block; padding: 2px 8px; border-radius: 10px; background: var(--pass-bg); color: #1b5e20; font-weight: 700; font-size: 9px; border: 1px solid #a5d6a7; }
 .status-fail { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #ffcdd2; color: #b71c1c; font-weight: 700; font-size: 9px; border: 1px solid #ef5350; }
-.chart-container { position: relative; height: 250px; margin: 8px 0; padding: 8px; background: #fafbff; border: 1px solid #e3f2fd; border-radius: 6px; }
+.chart-container { position: relative; height: 250px; margin: 8px 0; padding: 8px; background: #fafbff; border: 1px solid #e3f2fd; border-radius: 6px; page-break-before: always; }
 .rpt-title { text-align: center; font-weight: 800; font-size: 12px; color: var(--bd-dark); border-bottom: 2px solid var(--yw-dark); padding-bottom: 3px; margin-bottom: 5px; }
 .weak-item { background: #ffebee; border: 1px solid #ef5350; border-left: 4px solid #d32f2f; border-radius: 4px; padding: 6px; margin-bottom: 6px; }
 .weak-item-title { font-weight: 700; color: #b71c1c; font-size: 10px; margin-bottom: 2px; }
@@ -372,7 +372,11 @@ function rR(app) {
   const totalSum = recs.reduce((a, r) => a + (r.sum || 0), 0);
   const totalFull = recs.reduce((a, r) => a + (r.full || 0), 0);
   const avgPct = recs.length ? (recs.reduce((a, r) => a + (r.pct || 0), 0) / recs.length).toFixed(1) : 0;
-  const passN = recs.filter(r => (r.pct || 0) >= 90).length;
+  console.log("Checking passN:", recs.map(r => ({ hn: r.hn, pct: r.pct, pass: (r.pct || 0) >= 90 })));
+  const passN = recs.filter(r => {
+    const p = parseFloat(r.pct) || 0;
+    return p >= 90;
+  }).length;
   const failN = recs.length - passN;
 
   app.appendChild(h("div", { className: "cd" },
